@@ -8,9 +8,9 @@
             "image": "015776309570.dkr.ecr.us-east-2.amazonaws.com/msg-mgr:latest",
             "portMappings": [
                 {
-                    "containerPort": 3000,
-                    "hostPort": 3000,
-                    "protocol": "tcp"
+                    "containerPort": 8080,
+                    "hostPort": 8080,
+                    "protocol": "http"
                 }
             ],
             "essential": true
