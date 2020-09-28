@@ -1,5 +1,5 @@
 {
-  "name": "messages-manager",
+  "name": "aws-deployment-test",
   "version": "0.0.1",
   "dependencies": {
     "typeorm": "0.2.26",
