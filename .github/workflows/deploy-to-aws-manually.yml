@@ -52,7 +52,7 @@ jobs:
       id: build-image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: msg-mgr
+        ECR_REPOSITORY: ms-mn
         IMAGE_TAG: ${{ github.sha }}
       run: |
         # Build a docker container and
@@ -63,20 +63,20 @@ jobs:
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
         echo "Download task definition file"
-        aws ecs describe-task-definition --task-definition msg-mgr --query taskDefinition > task-definition.json
+        aws ecs describe-task-definition --task-definition ms-mn --query taskDefinition > task-definition.json
 
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: task-definition.json
-        container-name: msg-mgr
+        container-name: ms-mn
         image: ${{ steps.build-image.outputs.image }}
 
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: msg-mgr-service
-        cluster: msg-mgr-cluster
+        service: ms-mn-service
+        cluster: ms-mn-cluster
         wait-for-service-stability: true
