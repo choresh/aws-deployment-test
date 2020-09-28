@@ -1,0 +1,24 @@
+{
+    "family": "msg-mgr",
+    "executionRoleArn": "arn:aws:iam::015776309570:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "containerDefinitions": [
+        {
+            "name": "msg-mgr",
+            "image": "015776309570.dkr.ecr.us-east-2.amazonaws.com/msg-mgr:latest",
+            "portMappings": [
+                {
+                    "containerPort": 3000,
+                    "hostPort": 3000,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true
+        }
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "512",
+    "memory": "1024"
+}
