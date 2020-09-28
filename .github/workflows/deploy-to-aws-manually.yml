@@ -25,10 +25,8 @@
 
 on:
   workflow_dispatch:
-    branches: 
-      - master
-
-name: Deploy to Amazon ECS Manualy
+   
+name: Deploy to Amazon ECS Manually
 
 jobs:
   deploy:
