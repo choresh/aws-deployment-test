@@ -26,6 +26,6 @@
   "scripts": {
     "build": "tsc -p .",
     "start": "node build/src/app.js",
-    "test": "mocha build/tests/spec.js"
+    "test": "mocha --timeout 15000 build/tests/spec.js"
   }
 }
