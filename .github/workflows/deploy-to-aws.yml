@@ -70,7 +70,7 @@ jobs:
     
     - name: Docker compose test
       id: "docker-compose-test"
-      run: docker-compose -f docker-compose.test.yml up
+      run: docker-compose --build
 
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def
