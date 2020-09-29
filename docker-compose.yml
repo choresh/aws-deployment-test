@@ -1,20 +1,8 @@
 version: "3"
 services:
-  messages-manager:
-    container_name: messages-manager
+  aws-deployment-test:
+    image: 015776309570.dkr.ecr.us-east-2.amazonaws.com/ms-mn:latest 
+    container_name: aws-deployment-test
     build: .
     ports:
       - "8080:8080"
-    depends_on:
-      - postgres
-    environment:       
-      PG_HOST: postgres      
-  postgres:
-    container_name: postgres
-    image: postgres:12.4-alpine
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: messages-manager
