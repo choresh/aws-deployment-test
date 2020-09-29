@@ -68,13 +68,9 @@ jobs:
         echo "Download task definition file"
         aws ecs describe-task-definition --task-definition ms-mn --query taskDefinition > task-definition.json
     
-    - name: Docker compose build
-      id: "docker-compose-build"
-      run: docker-compose up --build
-
     - name: Docker compose test
       id: "docker-compose-test"
-      run: docker-compose up --exit-code-from web
+      run: docker-compose up --exit-code-from aws-deployment-test
 
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def
