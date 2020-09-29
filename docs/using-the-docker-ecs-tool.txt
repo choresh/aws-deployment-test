@@ -1,0 +1,53 @@
+STEPS:
+
+1) Some references: https://docs.docker.com/engine/context/ecs-integration/.
+
+2) If appears ARN problem - see solution here: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-modifying-longer-id-settings.html.
+
+
+1) Open https://interworks.com.mk/docker-ecs-integration/.
+
+2) Some more details/options for section 'Docker ECS Setup' - i.e. how to create at AWS a user for ECS CLI:
+	A) Create new policy:
+		i. Via AWS console - one of the folowwing options:
+			* Via UI editor:
+				Action,						Service
+				ec2:DescribeSubnets			EC2
+				ec2:DescribeVpcs			EC2
+				iam:CreateServiceLinkedRole	IAM
+				iam:AttachRolePolicy		IAM
+				cloudformation:*			CloudFormation
+				ecs:*						Elastic Container Service
+				logs:*						CloudWatch Logs
+				servicediscovery:*			Cloud Map
+				elasticloadbalancing:*		ELB v2
+			* Via JSON:
+				{
+					"Version": "2012-10-17",
+					"Statement": [
+						{
+							"Sid": "VisualEditor0",
+							"Effect": "Allow",
+							"Action": [
+								"servicediscovery:*",
+								"iam:CreateServiceLinkedRole",
+								"ec2:DescribeVpcs",
+								"logs:*",
+								"ecs:*",
+								"cloudformation:*",
+								"iam:AttachRolePolicy",
+								"elasticloadbalancing:*",
+								"ec2:DescribeSubnets"
+							],
+							"Resource": "*"
+						}
+					]
+				}
+		ii. AWS CLI: ???
+			* At AWS console - create user for AWS CLI, and save its credintials.
+			* Install AWS CLI.
+			* Set credintila in theAWS CLI.
+			* Import the policy JSON to AWS:???
+	B) At AWS console - create the user and attach to it the new policy.
+
+
