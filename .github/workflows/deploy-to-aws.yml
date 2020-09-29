@@ -58,9 +58,7 @@ jobs:
         ECR_REPOSITORY: ms-mn
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        # Build a docker container and
-        # push it to ECR so that it can
-        # be deployed to ECS.
+        # Build a docker container and push it to ECR so that it can be deployed to ECS.
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
@@ -70,7 +68,7 @@ jobs:
     
     - name: Docker compose test
       id: "docker-compose-test"
-      run: docker-compose up --build -d
+      run: docker-compose --file docker-compose.test.yml up --build
 
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def
