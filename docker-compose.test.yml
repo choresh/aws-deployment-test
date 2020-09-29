@@ -3,6 +3,7 @@ services:
   aws-deployment-test:
     image: 015776309570.dkr.ecr.us-east-2.amazonaws.com/ms-mn:latest 
     container_name: aws-deployment-test
+    build: .
     depends_on:
       - postgres
     environment:       
