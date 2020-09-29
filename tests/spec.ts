@@ -8,7 +8,7 @@ const CONNECTION_RETRY_TIMEOUT_MS: number = 2000;
 // be selected if run performed without the 'docker compose' command (e.g. while
 // developer runs the service locally, out of docker macine).
 const host: string = process.env.SERVICE_HOST || "localhost"; 
-const baseUrl: string = "http://" + host + ":8085";
+const baseUrl: string = "http://" + host + ":8080";
 
 async function waitforService(): Promise<void> {
   console.log("Tests started, service base URL: '" + baseUrl + "'");    
