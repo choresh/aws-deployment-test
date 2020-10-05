@@ -1,0 +1,22 @@
+{
+    "Role": {
+        "Path": "/",
+        "RoleName": "ecsTaskExecutionRole-10",
+        "RoleId": "AROAQHLCXMFBLLYH6QULE",
+        "Arn": "arn:aws:iam::015776309570:role/ecsTaskExecutionRole-10",
+        "CreateDate": "2020-10-05T19:18:58+00:00",
+        "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "",
+                    "Effect": "Allow",
+                    "Principal": {
+                        "Service": "ecs-tasks.amazonaws.com"
+                    },
+                    "Action": "sts:AssumeRole"
+                }
+            ]
+        }
+    }
+}
