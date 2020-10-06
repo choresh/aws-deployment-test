@@ -19,6 +19,9 @@ export class CreateClusterUtils {
             case "--ecs-params":
                 this.setEcsParams(args[1], args[2], args[3], args[4], args[5], args[6]);
                 break;
+            case "--containers-info":
+                this.extractContainersInfo(args[1], args[2]);
+                break;
             default:
                 throw new Error("Invalid parameter(s)");
         }  
@@ -48,6 +51,28 @@ export class CreateClusterUtils {
         fs.writeFileSync(tarFileName, tarData);
     } 
 
+    private static extractContainersInfo(srcFileName: string, tarFileName: string): void {
+        let srcData: string = fs.readFileSync(srcFileName).toString().trim();
+        console.log("===================================================");
+        console.log(srcData);
+        console.log("===================================================");
+        let lines: string[] = srcData.split("\n");
+        let taskIds: string[] = [];
+        for (let i = 1; i< lines.length; i++) {
+            let currLine: string = lines[i];
+            taskIds.push(this.findVal(currLine, "", "/").val);
+        };
+        let tarData: string = "";
+        taskIds.forEach((currTaskId: string) => {
+            if (tarData) {
+                tarData += " ";
+            } 
+            tarData += currTaskId;
+        });
+        tarData = "TASK_IDS:" + tarData;
+        fs.writeFileSync(tarFileName, tarData);
+    } 
+
     private static setEcsParams(srcFileName: string, tarFileName: string, roleName: string, subnet1: string, subnet2: string, sgId: string): void {
         let data: string = fs.readFileSync(srcFileName).toString();
         data = data.replace("ROLE_NAME", roleName);
@@ -58,7 +83,7 @@ export class CreateClusterUtils {
     } 
     
     private static findVal(data: string, key: string, endMarker: string, startIndex?: number): FindResult {
-        let start: number = data.indexOf(key, startIndex);
+        let start: number = key ? data.indexOf(key, startIndex) : 0;
         let end: number = -1;
         let val: string;
         if (start !== -1) {
