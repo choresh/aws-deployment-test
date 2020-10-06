@@ -25,14 +25,19 @@ export class CreateClusterUtils {
     }
 
     private static extractVpcInfo(srcFileName: string, tarFileName: string): void {
-        let srcData: string = fs.readFileSync(srcFileName).toString();
-        let vpcIdResult: FindResult = this.findVal(srcData, "VPC created: ", "\n");
-        let subnetResult1: FindResult = this.findVal(srcData, "Subnet created: ", "\n", vpcIdResult.endIndex);
-        let subnetResult2: FindResult = this.findVal(srcData, "Subnet created: ", "\n", subnetResult1.endIndex);
+        let srcData: string = fs.readFileSync(srcFileName).toString();        
+        let errorResult: FindResult = this.findVal(srcData, "\"Failure event\" reason=\"", ".");
         let tarData: string = "";
-        tarData += "VPC_ID:" + vpcIdResult.val + "\n";
-        tarData += "SUBNET_1:" + subnetResult1.val + "\n";
-        tarData += "SUBNET_2:" + subnetResult2.val;
+        if (errorResult.val) {
+            tarData += "ERROR_MSG:" + errorResult.val;
+        } else {
+            let vpcIdResult: FindResult = this.findVal(srcData, "VPC created: ", "\n");
+            let subnetResult1: FindResult = this.findVal(srcData, "Subnet created: ", "\n", vpcIdResult.endIndex);
+            let subnetResult2: FindResult = this.findVal(srcData, "Subnet created: ", "\n", subnetResult1.endIndex);
+            tarData += "VPC_ID:" + vpcIdResult.val + "\n";
+            tarData += "SUBNET_1:" + subnetResult1.val + "\n";
+            tarData += "SUBNET_2:" + subnetResult2.val;
+        }
         fs.writeFileSync(tarFileName, tarData);
     } 
 
@@ -53,10 +58,17 @@ export class CreateClusterUtils {
     } 
     
     private static findVal(data: string, key: string, endMarker: string, startIndex?: number): FindResult {
-        let start = data.indexOf(key, startIndex) + key.length;
-        let end = data.indexOf(endMarker, start);
+        let start: number = data.indexOf(key, startIndex);
+        let end: number = -1;
+        let val: string;
+        if (start !== -1) {
+            end = data.indexOf(endMarker, start + key.length);
+            if (end !== -1) {
+                val = data.substr(start + key.length, end - start - key.length);
+            }
+        }
         return {
-            val: data.substr(start, end - start),
+            val: val,
             endIndex: end
         };
     } 

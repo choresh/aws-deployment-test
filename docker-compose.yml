@@ -7,7 +7,7 @@ services:
     logging:
       driver: awslogs
       options: 
-        awslogs-group: cluster-10
+        awslogs-group: cluster-100
         awslogs-region: us-east-2
         awslogs-stream-prefix: web
 
