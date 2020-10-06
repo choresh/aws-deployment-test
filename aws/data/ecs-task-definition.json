@@ -1,15 +1,15 @@
 {
-    "family": "ms-mn",
-    "executionRoleArn": "arn:aws:iam::015776309570:role/ecsTaskExecutionRole",
+    "family": "CLUSTER_NAME",
+    "executionRoleArn": "arn:aws:iam::ACOUNT_ID:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
     "containerDefinitions": [
         {
-            "name": "ms-mn",
-            "image": "015776309570.dkr.ecr.us-east-2.amazonaws.com/ms-mn:latest",
+            "name": "CLUSTER_NAME",
+            "image": "ACOUNT_ID.dkr.ecr.REGION.amazonaws.com/CLUSTER_NAME:latest",
             "portMappings": [
                 {
-                    "containerPort": 8080,
-                    "hostPort": 8080,
+                    "containerPort": PORT,
+                    "hostPort": PORT,
                     "protocol": "http"
                 }
             ],
