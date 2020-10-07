@@ -1,41 +1,42 @@
-version: '3'
+# version: '3'
+# services:
+#   web:
+#     image: amazon/amazon-ecs-sample
+#     ports:
+#       - "80:80"
+#     logging:
+#       driver: awslogs
+#       options: 
+#         awslogs-group: cluster-100
+#         awslogs-region: us-east-2
+#         awslogs-stream-prefix: web
+
+
+version: "3"
 services:
-  web:
-    image: amazon/amazon-ecs-sample
+  aws-deployment-test:
+    # TODO: repositoryUri!!!
+    image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/cluster-100 
+    container_name: aws-deployment-test
+    #build: .
     ports:
-      - "80:80"
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:       
+      PG_HOST: postgres
     logging:
       driver: awslogs
       options: 
         awslogs-group: cluster-100
-        awslogs-region: us-east-2
-        awslogs-stream-prefix: web
-
-
-# version: "3"
-# services:
-#   aws-deployment-test:
-#     image: 015776309570.dkr.ecr.us-east-2.amazonaws.com/ms-mn:latest 
-#     #container_name: aws-deployment-test
-#     #build: .
-#     ports:
-#       - "8080:8080"
-#     #depends_on:
-#       #- postgres
-#     environment:       
-#       PG_HOST: postgres
-#     logging:
-#       driver: awslogs
-#       options: 
-#         awslogs-group: msmn-logs
-#         awslogs-region: us-west-2
-#         awslogs-stream-prefix: msmn
-#   postgres:
-#     #container_name: postgres
-#     image: postgres:12.4-alpine
-#     ports:
-#       - "5432:5432"
-#     environment:
-#       POSTGRES_USER: postgres
-#       POSTGRES_PASSWORD: postgres
-#       POSTGRES_DB: messages-manager
+        awslogs-region: us-west-2
+        awslogs-stream-prefix: aws-deployment-test
+  postgres:
+    container_name: postgres
+    image: postgres:12.4-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: messages-manager
