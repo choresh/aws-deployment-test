@@ -15,6 +15,9 @@ SET VPC_INFO_FILE_NAME=%AWS_TEMP_FOLDER%vpc-info.txt
 SET VPC_INFO_PROCESSED_FILE_NAME=%AWS_TEMP_FOLDER%vpc-info-processed.txt
 SET SG_INFO_FILE_NAME=%AWS_TEMP_FOLDER%sg-info.json
 SET SG_INFO_PROCESSED_FILE_NAME=%AWS_TEMP_FOLDER%sg-info-processed.txt
+SET DELETED_REPOSITORY_INFO_FILE_NAME=%AWS_TEMP_FOLDER%deleted-repository-info.json
+SET REPOSITORY_INFO_FILE_NAME=%AWS_TEMP_FOLDER%repository-info.json
+SET REPOSITORY_INFO_PROCESSED_FILE_NAME=%AWS_TEMP_FOLDER%repository-info-processed.txt
 SET CONTAINERS_INFO_FILE_NAME=%AWS_TEMP_FOLDER%containers-info.txt
 SET CONTAINERS_INFO_PROCESSED_FILE_NAME=%AWS_TEMP_FOLDER%containers-info-processed.txt
 SET ECS_PARAMS_TEMPLATE_FILE_NAME=%AWS_DATA_FOLDER%ecs-params-template.yml
@@ -25,10 +28,32 @@ SET ROLE_NAME=ecsTaskExecutionRole-%CLUSTER_SUFFIX%
 SET PROFILE_NAME=profile-%CLUSTER_SUFFIX%
 SET CLUSTER_NAME=cluster-%CLUSTER_SUFFIX%
 SET STACK_NAME=amazon-ecs-cli-setup-%CLUSTER_SUFFIX%
+SET REPOSITORY_NAME=%CLUSTER_NAME%
+
+REM ============================================
+
+aws ecs describe-task-definition --task-definition %CLUSTER_NAME% --query taskDefinition --region %REGION%
+PAUSE
+
+aws ecr delete-repository --repository-name %REPOSITORY_NAME% --region %REGION% > %DELETED_REPOSITORY_INFO_FILE_NAME%
+
+ECHO Create repository - started
+aws ecr create-repository --repository-name %REPOSITORY_NAME% --region %REGION% > %REPOSITORY_INFO_FILE_NAME%
+ECHO Create repository - ended
+
+ECHO Fetch Repository info - started
+CALL node %MY_UTILS_PATH% --repository-info %REPOSITORY_INFO_FILE_NAME% %REPOSITORY_INFO_PROCESSED_FILE_NAME%
+FOR /f "tokens=1,2 delims=:" %%A in (%REPOSITORY_INFO_PROCESSED_FILE_NAME%) do (
+    SET FOUND_%%A=%%B
+)
+ECHO FOUND_REPOSITORY_URI: '%FOUND_REPOSITORY_URI%'
+ECHO Fetch Repository info - ended
+REM ============================================
+PAUSE
 
 ECHO Clear all resources - started
 ecs-cli compose --project-name %CLUSTER_NAME% service down --cluster-config %CLUSTER_NAME% --ecs-profile %PROFILE_NAME%
-ecs-cli down --force --cluster-config %CLUSTER_NAME% --ecs-profile %PROFILE_NAME%
+ecs-cli down --force --cluster-config %CLUSTER_NAME% s
 ECHO Clear all resources - ended
 
 ECHO Create role - sarted
@@ -85,9 +110,9 @@ ECHO Deploy the compose file to the cluster - started
 ecs-cli compose --ecs-params %ECS_PARAMS_FILE_NAME% --project-name %CLUSTER_NAME% service up --create-log-groups --cluster-config %CLUSTER_NAME% --ecs-profile %PROFILE_NAME%
 ECHO Deploy the compose file to the cluster - ended
 
-ECHO View the running containers on a cluster - start
+ECHO View the running containers on a cluster - started
 ecs-cli compose --project-name  %CLUSTER_NAME% service ps --cluster-config %CLUSTER_NAME% --ecs-profile %PROFILE_NAME% > %CONTAINERS_INFO_FILE_NAME%
-ECHO View the running containers on a cluster - end
+ECHO View the running containers on a cluster - ended
 
 ECHO Fetch Containers info - started
 CALL node %MY_UTILS_PATH% --containers-info %CONTAINERS_INFO_FILE_NAME% %CONTAINERS_INFO_PROCESSED_FILE_NAME%
@@ -96,15 +121,15 @@ FOR /f "tokens=1,2 delims=:" %%A in (%CONTAINERS_INFO_PROCESSED_FILE_NAME%) do (
 )
 ECHO Fetch Containers info - ended
 
-REM ECHO View the container logs - start
+REM ECHO View the container logs - started
 REM ecs-cli logs --task-id %FOUND_TASK_IDS% --follow --cluster-config %CLUSTER_NAME% --ecs-profile %PROFILE_NAME%
 REM ECHO View the container logs - end
 
-ECHO Scale the tasks on the cluster - start
+ECHO Scale the tasks on the cluster - started
 ecs-cli compose --project-name %CLUSTER_NAME% service scale 2 --cluster-config %CLUSTER_NAME% --ecs-profile %PROFILE_NAME%
-ECHO Scale the tasks on the cluster - stop
+ECHO Scale the tasks on the cluster - ended
 
-ECHO View the running containers on a cluster (after scale) - start
+ECHO View the running containers on a cluster (after scale) - started
 ecs-cli compose --project-name  %CLUSTER_NAME% service ps --cluster-config %CLUSTER_NAME% --ecs-profile %PROFILE_NAME% > %CONTAINERS_INFO_FILE_NAME%
 ECHO View the running containers on a cluster (after scale) - end
 
@@ -117,7 +142,7 @@ ECHO Fetch Containers info (after scale) - ended
 
 REM FOR %%A in (%FOUND_2_TASK_IDS%) do (
 REM    ECHO FOUND_2_TASK_ID '%%A'
-REM    ECHO View the container logs - start
+REM    ECHO View the container logs - started
 REM    ecs-cli logs --task-id %FOUND_2_TASK_ID% --follow --cluster-config %CLUSTER_NAME% --ecs-profile %PROFILE_NAME%
 REM    ECHO View the container logs - end
 REM )
@@ -128,4 +153,5 @@ REM ecs-cli down --force --cluster-config %CLUSTER_NAME% --ecs-profile %PROFILE_
 REM ECHO Clear all resources - ended
 
 :END
+PAUSE
 @ECHO ON
