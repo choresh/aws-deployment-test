@@ -26,7 +26,8 @@ export class CreateClusterUtils {
                 this.extractRepositoryInfo(args[1], args[2]);
                 break;
             case "--github-params":
-                this.setGithubParams(args);
+                console.log("args:", args);
+                this.setGithubParams(args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]);
                 break;
             default:
                 throw new Error("Invalid parameter: '" + args[0] + "'");
@@ -93,23 +94,25 @@ export class CreateClusterUtils {
         data = data.replace("#SUBNET_2#", subnet2);
         data = data.replace("#SG_ID#", sgId);
         fs.writeFileSync(tarFileName, data);
-    } 
-
-    // #REGION#
-    // #ECR_REPOSITORY#
-    // #TASK_DEFINITION#
-    // #CONTAINER_NAME#
-    // #SERVICE_NAME#
-    // #CLUSTER_NAME#
-    private static setGithubParams(args: string[]): void {
-        let data: string = fs.readFileSync(args[1]).toString();
-        data = data.replace("#REGION#", args[3]);
-        data = data.replace("#ECR_REPOSITORY#", args[4]);
-        data = data.replace("#TASK_DEFINITION#", args[5]);
-        data = data.replace("#CONTAINER_NAME#", args[6]);
-        data = data.replace("#SERVICE_NAME#", args[7]);
-        data = data.replace("#CLUSTER_NAME#", args[8]);
-        fs.writeFileSync(args[2], data);
+    }
+   
+    private static setGithubParams(
+        srcFileName: string,
+        tarFileName: string,
+        region: string,
+        ecrRepository: string,
+        taskDefinition: string,
+        containerName: string,
+        serviceName: string,
+        clusterName: string): void {
+        let data: string = fs.readFileSync(srcFileName).toString();
+        data = data.replace("#REGION#", region);
+        data = data.replace("#ECR_REPOSITORY#", ecrRepository);
+        data = data.replace("#TASK_DEFINITION#", taskDefinition);
+        data = data.replace("#CONTAINER_NAME#", containerName);
+        data = data.replace("#SERVICE_NAME#", serviceName);
+        data = data.replace("#CLUSTER_NAME#", clusterName);
+        fs.writeFileSync(tarFileName, data);
     } 
     
     private static findVal(data: string, key: string, endMarker: string, startIndex?: number): FindResult {
