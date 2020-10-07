@@ -1,15 +1,17 @@
 @ECHO OFF
 
-REM This sequence of comands based on: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-ec2.html
+REM 1st part of the comands based on: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-ec2.html.
+REM 2nd part of the comands (from 'Get Repository info - started') based on: https://medium.com/javascript-in-plain-english/deploy-your-node-app-to-aws-container-service-via-github-actions-build-a-pipeline-c114adeb8903.
+REM More info - see the 'README.md' file of this package.
 
 SET AWS_ACCESS_KEY_ID=
 SET AWS_SECRET_ACCESS_KEY=
+SET CLUSTER_SUFFIX=100
+SET REGION=us-east-2
 
 SET AWS_DATA_FOLDER=aws/data/
 SET AWS_TEMP_FOLDER=aws/temp/
 SET GITHUB_WORKFLOWS_FOLDER=.github\workflows/
-SET CLUSTER_SUFFIX=100
-SET REGION=us-east-2
 SET ROLE_INFO_FILE_NAME=%AWS_TEMP_FOLDER%role-info.json
 SET ROLE_POLICY_FILE=%AWS_DATA_FOLDER%task-execution-assume-role.json
 SET VPC_INFO_FILE_NAME=%AWS_TEMP_FOLDER%vpc-info.txt
@@ -25,44 +27,12 @@ SET ECS_PARAMS_TEMPLATE_FILE_NAME=%AWS_DATA_FOLDER%ecs-params-template.yml
 SET ECS_PARAMS_FILE_NAME=%AWS_TEMP_FOLDER%ecs-params.yml
 SET GITHUB_PARAMS_TEMPLATE_FILE_NAME=%GITHUB_WORKFLOWS_FOLDER%deploy-to-aws-template.yml
 SET GITHUB_PARAMS_FILE_NAME=%GITHUB_WORKFLOWS_FOLDER%deploy-to-aws.yml
-
 SET MY_UTILS_PATH="%~dp0build/aws/src/create-cluster-utils.js"
-
 SET ROLE_NAME=ecsTaskExecutionRole-%CLUSTER_SUFFIX%
 SET PROFILE_NAME=profile-%CLUSTER_SUFFIX%
 SET CLUSTER_NAME=cluster-%CLUSTER_SUFFIX%
 SET STACK_NAME=amazon-ecs-cli-setup-%CLUSTER_SUFFIX%
 SET REPOSITORY_NAME=%CLUSTER_NAME%
-
-REM ============================================
-
-aws ecs describe-task-definition --task-definition %CLUSTER_NAME% --query taskDefinition --region %REGION%
-PAUSE
-
-aws ecr delete-repository --repository-name %REPOSITORY_NAME% --region %REGION% > %DELETED_REPOSITORY_INFO_FILE_NAME%
-
-ECHO Create repository - started
-aws ecr create-repository --repository-name %REPOSITORY_NAME% --region %REGION% > %REPOSITORY_INFO_FILE_NAME%
-ECHO Create repository - ended
-
-ECHO Fetch Repository info - started
-CALL node %MY_UTILS_PATH% --repository-info %REPOSITORY_INFO_FILE_NAME% %REPOSITORY_INFO_PROCESSED_FILE_NAME%
-FOR /f "tokens=1,2 delims=:" %%A in (%REPOSITORY_INFO_PROCESSED_FILE_NAME%) do (
-    SET FOUND_%%A=%%B
-)
-ECHO FOUND_REPOSITORY_URI: '%FOUND_REPOSITORY_URI%'
-ECHO Fetch Repository info - ended
-
-ECHO Set GitHub params - started
-SET ECR_REPOSITORY=%CLUSTER_NAME%
-SET SERVICE_NAME=%CLUSTER_NAME%
-SET TASK_DEFINITION=cluster-100:1
-SET CONTAINER_NAME=web
-CALL node %MY_UTILS_PATH% --github-params %GITHUB_PARAMS_TEMPLATE_FILE_NAME% %GITHUB_PARAMS_FILE_NAME% %REGION% %ECR_REPOSITORY% %TASK_DEFINITION% %CONTAINER_NAME% %SERVICE_NAME% %CLUSTER_NAME%
-ECHO Set GitHub params - ended
-
-REM ============================================
-PAUSE
 
 ECHO Clear all resources - started
 ecs-cli compose --project-name %CLUSTER_NAME% service down --cluster-config %CLUSTER_NAME% --ecs-profile %PROFILE_NAME%
@@ -91,7 +61,7 @@ ECHO Create cluster - ended
 
 ECHO Fetch VPC info - started
 CALL node %MY_UTILS_PATH% --vpc-info %VPC_INFO_FILE_NAME% %VPC_INFO_PROCESSED_FILE_NAME%
-FOR /f "tokens=1,2 delims=:" %%A in (%VPC_INFO_PROCESSED_FILE_NAME%) do (
+FOR /f "tokens=1,2 delims==" %%A in (%VPC_INFO_PROCESSED_FILE_NAME%) do (
     SET FOUND_%%A=%%B
 )
 IF DEFINED FOUND_ERROR_MSG (
@@ -106,7 +76,7 @@ ECHO Retrieve the default security group ID for the VPC - ended
 
 ECHO Fetch SG info - started
 CALL node %MY_UTILS_PATH% --sg-info %SG_INFO_FILE_NAME% %SG_INFO_PROCESSED_FILE_NAME%
-FOR /f "tokens=1,2 delims=:" %%A in (%SG_INFO_PROCESSED_FILE_NAME%) do (
+FOR /f "tokens=1,2 delims==" %%A in (%SG_INFO_PROCESSED_FILE_NAME%) do (
     SET FOUND_%%A=%%B
 )
 ECHO Fetch SG info - ended
@@ -129,7 +99,7 @@ ECHO View the running containers on a cluster - ended
 
 ECHO Fetch Containers info - started
 CALL node %MY_UTILS_PATH% --containers-info %CONTAINERS_INFO_FILE_NAME% %CONTAINERS_INFO_PROCESSED_FILE_NAME%
-FOR /f "tokens=1,2 delims=:" %%A in (%CONTAINERS_INFO_PROCESSED_FILE_NAME%) do (
+FOR /f "tokens=1,2 delims==" %%A in (%CONTAINERS_INFO_PROCESSED_FILE_NAME%) do (
     SET FOUND_%%A=%%B
 )
 ECHO Fetch Containers info - ended
@@ -148,21 +118,58 @@ ECHO View the running containers on a cluster (after scale) - end
 
 ECHO Fetch Containers info (after scale) - started
 CALL node %MY_UTILS_PATH% --containers-info %CONTAINERS_INFO_FILE_NAME% %CONTAINERS_INFO_PROCESSED_FILE_NAME%
-FOR /f "tokens=1,2 delims=:" %%A in (%CONTAINERS_INFO_PROCESSED_FILE_NAME%) do (
+FOR /f "tokens=1,2 delims==" %%A in (%CONTAINERS_INFO_PROCESSED_FILE_NAME%) do (
     SET FOUND_2_%%A=%%B
 )
 ECHO Fetch Containers info (after scale) - ended
 
 REM FOR %%A in (%FOUND_2_TASK_IDS%) do (
-REM    ECHO FOUND_2_TASK_ID '%%A'
-REM    ECHO View the container logs - started
-REM    ecs-cli logs --task-id %FOUND_2_TASK_ID% --follow --cluster-config %CLUSTER_NAME% --ecs-profile %PROFILE_NAME%
-REM    ECHO View the container logs - end
+REM    ECHO CURR_FOUND_TASK_ID '%%A'
+REM    ECHO View container logs - started
+REM    ecs-cli logs --task-id %CURR_FOUND_TASK_ID% --follow --cluster-config %CLUSTER_NAME% --ecs-profile %PROFILE_NAME%
+REM    ECHO View container logs - end
 REM )
+
+ECHO Get Repository info - started
+aws ecr describe-repositories --repository-names %REPOSITORY_NAME% --region %REGION% > %REPOSITORY_INFO_FILE_NAME%
+ECHO Get Repository info - ended
+
+ECHO Fetch Repository info - started
+CALL node %MY_UTILS_PATH% --repository-info %REPOSITORY_INFO_FILE_NAME% %REPOSITORY_INFO_PROCESSED_FILE_NAME%
+FOR /f "tokens=1,2 delims==" %%A in (%REPOSITORY_INFO_PROCESSED_FILE_NAME%) do (
+    SET FOUND_%%A=%%B
+)
+ECHO Fetch Repository info - ended
+
+IF NOT DEFINED FOUND_REPOSITORY_URI (
+    ECHO Create repository - started
+    aws ecr create-repository --repository-name %REPOSITORY_NAME% --region %REGION% > %REPOSITORY_INFO_FILE_NAME%
+    ECHO Create repository - ended
+)
+
+ECHO Fetch Repository info (2nd time) - started
+CALL node %MY_UTILS_PATH% --repository-info %REPOSITORY_INFO_FILE_NAME% %REPOSITORY_INFO_PROCESSED_FILE_NAME%
+FOR /f "tokens=1,2 delims==" %%A in (%REPOSITORY_INFO_PROCESSED_FILE_NAME%) do (
+    SET FOUND_%%A=%%B
+)
+ECHO Fetch Repository info (2nd time) - ended
+
+REM ECHO get Task Definition - started
+REM aws ecs describe-task-definition --task-definition %CLUSTER_NAME% --query taskDefinition --region %REGION%
+REM ECHO get Task Definition - ended
+
+ECHO Set GitHub params - started
+SET ECR_REPOSITORY=%CLUSTER_NAME%
+SET SERVICE_NAME=%CLUSTER_NAME%
+SET CONTAINER_NAME=web
+CALL node %MY_UTILS_PATH% --github-params %GITHUB_PARAMS_TEMPLATE_FILE_NAME% %GITHUB_PARAMS_FILE_NAME% %REGION% %ECR_REPOSITORY% %FOUND_TASK_DEFINITION% %CONTAINER_NAME% %SERVICE_NAME% %CLUSTER_NAME%
+ECHO Set GitHub params - ended
 
 REM ECHO Clear all resources - started
 REM ecs-cli compose --project-name %CLUSTER_NAME% service down --cluster-config %CLUSTER_NAME% --ecs-profile %PROFILE_NAME%
 REM ecs-cli down --force --cluster-config %CLUSTER_NAME% --ecs-profile %PROFILE_NAME%
+REM ??? aws iam --region %REGION% delete-role --role-name %ROLE_NAME%
+REM ??? aws ecr delete-repository --repository-name %REPOSITORY_NAME% --region %REGION% > %DELETED_REPOSITORY_INFO_FILE_NAME%
 REM ECHO Clear all resources - ended
 
 :END
