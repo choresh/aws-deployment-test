@@ -8,6 +8,8 @@ SET AWS_ACCESS_KEY_ID=
 SET AWS_SECRET_ACCESS_KEY=
 SET CLUSTER_SUFFIX=100
 SET REGION=us-east-2
+REM TODO: 8080
+SET PORT=80
 
 SET AWS_DATA_FOLDER=aws/data/
 SET AWS_TEMP_FOLDER=aws/temp/
@@ -19,6 +21,7 @@ SET VPC_INFO_PROCESSED_FILE_NAME=%AWS_TEMP_FOLDER%vpc-info-processed.txt
 SET SG_INFO_FILE_NAME=%AWS_TEMP_FOLDER%sg-info.json
 SET SG_INFO_PROCESSED_FILE_NAME=%AWS_TEMP_FOLDER%sg-info-processed.txt
 SET DELETED_REPOSITORY_INFO_FILE_NAME=%AWS_TEMP_FOLDER%deleted-repository-info.json
+SET GET_ROLE_INFO_FILE_NAME=%AWS_TEMP_FOLDER%get-role-info.json
 SET REPOSITORY_INFO_FILE_NAME=%AWS_TEMP_FOLDER%repository-info.json
 SET REPOSITORY_INFO_PROCESSED_FILE_NAME=%AWS_TEMP_FOLDER%repository-info-processed.txt
 SET CONTAINERS_INFO_FILE_NAME=%AWS_TEMP_FOLDER%containers-info.txt
@@ -34,14 +37,14 @@ SET CLUSTER_NAME=cluster-%CLUSTER_SUFFIX%
 SET STACK_NAME=amazon-ecs-cli-setup-%CLUSTER_SUFFIX%
 SET REPOSITORY_NAME=%CLUSTER_NAME%
 
-ECHO Clear all resources - started
+ECHO Clear all resources (if exists) - started
 ecs-cli compose --project-name %CLUSTER_NAME% service down --cluster-config %CLUSTER_NAME% --ecs-profile %PROFILE_NAME%
 ecs-cli down --force --cluster-config %CLUSTER_NAME% s
-ECHO Clear all resources - ended
+ECHO Clear all resources if exists) - ended
 
-ECHO Create role - sarted
+ECHO Create role (if not exists) - sarted
 aws iam --region %REGION% create-role --role-name %ROLE_NAME% --assume-role-policy-document file://%ROLE_POLICY_FILE% > %ROLE_INFO_FILE_NAME%
-ECHO Create role - ended
+ECHO Create role (if not exists) - ended
 
 ECHO Attch role policy - started
 aws iam --region %REGION% attach-role-policy --role-name %ROLE_NAME% --policy-arn arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
@@ -81,9 +84,9 @@ FOR /f "tokens=1,2 delims==" %%A in (%SG_INFO_PROCESSED_FILE_NAME%) do (
 )
 ECHO Fetch SG info - ended
 
-ECHO Add a security group rule to allow inbound access on port 80 - started
-aws ec2 authorize-security-group-ingress --group-id %FOUND_SG_ID% --protocol tcp --port 80 --cidr 0.0.0.0/0 --region %REGION%
-ECHO Add a security group rule to allow inbound access on port 80 - ended
+ECHO Add a security group rule to allow inbound access on port %PORT% - started
+aws ec2 authorize-security-group-ingress --group-id %FOUND_SG_ID% --protocol tcp --port %PORT% --cidr 0.0.0.0/0 --region %REGION%
+ECHO Add a security group rule to allow inbound access on port %PORT% - ended
 
 ECHO Set ESC params - started
 CALL node %MY_UTILS_PATH% --ecs-params %ECS_PARAMS_TEMPLATE_FILE_NAME% %ECS_PARAMS_FILE_NAME% %ROLE_NAME% %FOUND_SUBNET_1% %FOUND_SUBNET_2% %FOUND_SG_ID%
@@ -161,7 +164,8 @@ REM ECHO get Task Definition - ended
 ECHO Set GitHub params - started
 SET ECR_REPOSITORY=%CLUSTER_NAME%
 SET SERVICE_NAME=%CLUSTER_NAME%
-SET CONTAINER_NAME=web
+REM TODO: aws-deployment-test ???
+SET CONTAINER_NAME=aws-deployment-test
 CALL node %MY_UTILS_PATH% --github-params %GITHUB_PARAMS_TEMPLATE_FILE_NAME% %GITHUB_PARAMS_FILE_NAME% %REGION% %ECR_REPOSITORY% %FOUND_TASK_DEFINITION% %CONTAINER_NAME% %SERVICE_NAME% %CLUSTER_NAME%
 ECHO Set GitHub params - ended
 
@@ -171,6 +175,35 @@ REM ecs-cli down --force --cluster-config %CLUSTER_NAME% --ecs-profile %PROFILE_
 REM ??? aws iam --region %REGION% delete-role --role-name %ROLE_NAME%
 REM ??? aws ecr delete-repository --repository-name %REPOSITORY_NAME% --region %REGION% > %DELETED_REPOSITORY_INFO_FILE_NAME%
 REM ECHO Clear all resources - ended
+
+REM ===============================================
+
+ECHO Fetch Repository info - started
+CALL node %MY_UTILS_PATH% --repository-info %REPOSITORY_INFO_FILE_NAME% %REPOSITORY_INFO_PROCESSED_FILE_NAME%
+FOR /f "tokens=1,2 delims==" %%A in (%REPOSITORY_INFO_PROCESSED_FILE_NAME%) do (
+    SET FOUND_%%A=%%B
+)
+ECHO Fetch Repository info - ended
+
+ECHO REPOSITORY_URI: '%FOUND_REPOSITORY_URI%'
+
+ECHO Build - started
+docker build -t %FOUND_REPOSITORY_URI% .
+ECHO Build - ended
+
+ECHO Push - started
+docker push %FOUND_REPOSITORY_URI%
+ECHO Push - ended
+
+REM ===============================================
+
+REM TODO: add tag!
+REM docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+REM docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+REM echo "::set-output name=image::s
+
+
+REM =================================================
 
 :END
 PAUSE
