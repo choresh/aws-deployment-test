@@ -30,9 +30,9 @@ services:
     logging:
       driver: awslogs
       options: 
-        # TODO: aws-deployment-test/us-west-2/postgres
+        # TODO: aws-deployment-test/us-east-2/postgres
         awslogs-group: 
-        awslogs-region: us-west-2
+        awslogs-region: us-east-2
         awslogs-stream-prefix: aws-deployment-test
   # postgres:
   #   #container_name: postgres
