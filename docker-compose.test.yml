@@ -1,7 +1,9 @@
 version: "3"
 services:
   aws-deployment-test:
-    image: 015776309570.dkr.ecr.us-east-2.amazonaws.com/ms-mn:latest 
+    # TODO: repositoryUri!!!
+    # TODO: aws-deployment-test!!!
+    image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test:latest 
     container_name: aws-deployment-test
     build: .
     depends_on:
@@ -11,14 +13,17 @@ services:
   postgres:
     container_name: postgres
     image: postgres:12.4-alpine
+    # TODO: aws-deployment-test/postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: messages-manager
+      POSTGRES_DB: aws-deployment-test
   sut:
     build: .
+    # TODO: aws-deployment-test!!!     
     depends_on:
       - aws-deployment-test
-    environment:       
+    environment:
+      # TODO: aws-deployment-test!!!     
       SERVICE_HOST: aws-deployment-test    
     command: npm run test
