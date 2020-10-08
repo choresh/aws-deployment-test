@@ -129,7 +129,7 @@ export class CreateClusterUtils {
     private static findVal(data: string, key: string, endMarker: string, startIndex?: number): FindResult {
         let start: number = key ? data.indexOf(key, startIndex) : 0;
         let end: number = -1;
-        let val: string;
+        let val: string = "";
         if (start !== -1) {
             end = data.indexOf(endMarker, start + key.length);
             if (end !== -1) {
