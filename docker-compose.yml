@@ -16,13 +16,13 @@ version: "3"
 services:
   aws-deployment-test:
     # TODO: repositoryUri!!!
-    image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test 
-    # image: amazon/amazon-ecs-sample
+    # image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test 
+    image: amazon/amazon-ecs-sample
     #container_name: aws-deployment-test
     #build: .
     # TODO: 8080
     ports:
-      - "8080:8080"
+      - "80:80"
     #depends_on:
       #- postgres
     environment:       
@@ -31,7 +31,7 @@ services:
       driver: awslogs
       options: 
         # TODO: aws-deployment-test/us-east-2/postgres
-        awslogs-group: 
+        awslogs-group: aws-deployment-test
         awslogs-region: us-east-2
         awslogs-stream-prefix: aws-deployment-test
   # postgres:
