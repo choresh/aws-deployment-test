@@ -16,7 +16,6 @@ SET APP_NAME=aws-deployment-test
 SET REGION=us-east-2
 SET PORT=8080
 
-SET RESOURCES_SUFFIX=1
 SET AWS_DATA_FOLDER=aws/data/
 SET AWS_TEMP_FOLDER=aws/temp/
 SET GITHUB_WORKFLOWS_FOLDER=.github\workflows/
@@ -37,9 +36,10 @@ SET ECS_PARAMS_FILE_NAME=%AWS_TEMP_FOLDER%ecs-params.yml
 SET GITHUB_PARAMS_TEMPLATE_FILE_NAME=%GITHUB_WORKFLOWS_FOLDER%deploy-to-aws-template.yml
 SET GITHUB_PARAMS_FILE_NAME=%GITHUB_WORKFLOWS_FOLDER%deploy-to-aws.yml
 SET MY_UTILS_PATH="%~dp0build/aws/src/create-cluster-utils.js"
-SET ROLE_NAME=ecsTaskExecutionRole-%RESOURCES_SUFFIX%
-SET PROFILE_NAME=profile-%RESOURCES_SUFFIX%
-SET STACK_NAME=amazon-ecs-cli-setup-%RESOURCES_SUFFIX%
+
+SET ROLE_NAME=%APP_NAME%
+SET PROFILE_NAME=%APP_NAME%
+SET STACK_NAME=%APP_NAME%
 SET REPOSITORY_NAME=%APP_NAME%
 SET CLUSTER_NAME=%APP_NAME%
 SET ECR_REPOSITORY=%APP_NAME%
@@ -53,7 +53,6 @@ ecs-cli compose --project-name %PROJECT_NAME% service down --cluster-config %CLU
 ecs-cli down --cluster-config %CLUSTER_CONFIG_NAME% --ecs-profile %PROFILE_NAME% --force
 aws ecr delete-repository --repository-name %REPOSITORY_NAME% --region %REGION% --force > %DELETED_REPOSITORY_INFO_FILE_NAME%
 ECHO Clear all resources (if exists) - ended
-PAUSE
 
 REM ================= 1st part - start ==============================
 REM In this part we create AWS repository (if not exists yet).
@@ -62,6 +61,12 @@ ECHO Get Repository info - started
 aws ecr describe-repositories --repository-names %REPOSITORY_NAME% --region %REGION% > %REPOSITORY_INFO_FILE_NAME%
 ECHO Get Repository info - ended
 
+IF NOT %errorlevel% == 0 (
+    ECHO Create repository - started
+    aws ecr create-repository --repository-name %REPOSITORY_NAME% --region %REGION% > %REPOSITORY_INFO_FILE_NAME%
+    ECHO Create repository - ended 
+)
+
 ECHO Fetch Repository info - started
 CALL node %MY_UTILS_PATH% --repository-info %REPOSITORY_INFO_FILE_NAME% %REPOSITORY_INFO_PROCESSED_FILE_NAME%
 FOR /f "tokens=1,2 delims==" %%A in (%REPOSITORY_INFO_PROCESSED_FILE_NAME%) do (
@@ -69,23 +74,9 @@ FOR /f "tokens=1,2 delims==" %%A in (%REPOSITORY_INFO_PROCESSED_FILE_NAME%) do (
 )
 ECHO Fetch Repository info - ended
 
-IF NOT DEFINED FOUND_REPOSITORY_URI (
-    ECHO Create repository - started
-    aws ecr create-repository --repository-name %REPOSITORY_NAME% --region %REGION% > %REPOSITORY_INFO_FILE_NAME%
-    ECHO Create repository - ended 
-)
-
-ECHO Fetch Repository info (2nd time) - started
-CALL node %MY_UTILS_PATH% --repository-info %REPOSITORY_INFO_FILE_NAME% %REPOSITORY_INFO_PROCESSED_FILE_NAME%
-FOR /f "tokens=1,2 delims==" %%A in (%REPOSITORY_INFO_PROCESSED_FILE_NAME%) do (
-    SET FOUND_%%A=%%B
-)
-ECHO Fetch Repository info (2nd time) - ended
-
-ECHO FOUND_REPOSITORY_URI: '%FOUND_REPOSITORY_URI%'
-PAUSE
 
 REM ================= 1st part - end ==============================
+
 
 REM ================= 2nd part - start ==============================
 REM In this part we then build docker image, and push it to our reposetory.
@@ -93,12 +84,10 @@ REM In this part we then build docker image, and push it to our reposetory.
 ECHO Authenticate Docker to an Amazon ECR reposetory - start
 aws ecr get-login-password --region %REGION% | docker login --username AWS --password-stdin %FOUND_REPOSITORY_URI%
 ECHO Authenticate Docker to an Amazon ECR reposetory - end
-PAUSE
 
 ECHO Build - started
 docker build -t %FOUND_REPOSITORY_URI% .
 ECHO Build - ended
-PAUSE
 
 ECHO Push - started
 docker push %FOUND_REPOSITORY_URI%
@@ -112,9 +101,9 @@ REM ================= 3rd part - start ==============================
 REM * In this part we create an AWS cluster with a fargate task. 
 REM * More info - see https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-ec2.html,
 REM   and its sub chapters:
-REM     * Installing the Amazon ECS CLI.
-REM     * Configuring the Amazon ECS CLI.
-REM     * Tutorial: Creating a Cluster with a Fargate Task Using the Amazon ECS CLI.
+REM     * 'Installing the Amazon ECS CLI'.
+REM     * 'Configuring the Amazon ECS CLI'.
+REM     * 'Tutorial: Creating a Cluster with a Fargate Task Using the Amazon ECS CLI'.
 
 ECHO Create role (if not exists) - sarted
 aws iam --region %REGION% create-role --role-name %ROLE_NAME% --assume-role-policy-document file://%ROLE_POLICY_FILE% > %ROLE_INFO_FILE_NAME%
@@ -180,9 +169,6 @@ FOR /f "tokens=1,2 delims==" %%A in (%CONTAINERS_INFO_PROCESSED_FILE_NAME%) do (
     SET FOUND_%%A=%%B
 )
 ECHO Fetch Containers info - ended
-
-ECHO FOUND_TASK_DEFINITION: '%FOUND_TASK_DEFINITION%'
-PAUSE
 
 REM ECHO View the container logs - started
 REM ecs-cli logs --task-id %FOUND_TASK_IDS% --follow --cluster-config %CLUSTER_CONFIG_NAME% --ecs-profile %PROFILE_NAME%
