@@ -1,13 +1,14 @@
 @ECHO OFF
 
 REM =============================================================================================
-REM * More about keys - see paragraphs 'At AWS - create IAM user, and get correspond acess keys' and
-REM   'Configure our batch file', in 'README.md' file of this package.
+REM * More about those Access Keys - see the following chapters in 'README.md' file of this package:
+REM     * 'At AWS - create IAM user, and get correspond access keys'.
+REM     * 'Configure our batch file'.
 REM * IMPORTENT:
-REM     * Never expose the Access Keys!!!
-REM     * Use them only at your local machine!!!
-REM     * If they became public - be shure that some automatic scanners will detect them, and some one will try to use your credintials in order to consume AWS resources on you buddget!!!
-REM     * Such an exposure can happened by mistake, e.g. if you push this file to puplic GitHub, while those values defined in it!!!
+REM     * Never expose those Access Keys!!!
+REM     * Use them only at private environment (e.g. your local machine)!!!
+REM     * If they became public - be sure that some automatic scanners will detect them, and someone will try to use your credentials in order to consume AWS resources on you budget!!!
+REM     * Such an exposure may happened by mistake, e.g. if you push this file to public GitHub, while those values defined in it!!!
 SET AWS_ACCESS_KEY_ID=
 SET AWS_SECRET_ACCESS_KEY=
 REM =============================================================================================
@@ -73,6 +74,7 @@ FOR /f "tokens=1,2 delims==" %%A in (%REPOSITORY_INFO_PROCESSED_FILE_NAME%) do (
     SET FOUND_%%A=%%B
 )
 ECHO Fetch Repository info - ended
+
 
 
 REM ================= 1st part - end ==============================
