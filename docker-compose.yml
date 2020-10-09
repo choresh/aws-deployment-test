@@ -16,13 +16,13 @@ version: "3"
 services:
   aws-deployment-test:
     # TODO: repositoryUri!!!
-    # image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test 
-    image: amazon/amazon-ecs-sample
+    image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test 
+    #image: amazon/amazon-ecs-sample
     #container_name: aws-deployment-test
     #build: .
     # TODO: 8080
     ports:
-      - "80:80"
+      - "8080:8080"
     #depends_on:
       #- postgres
     environment:       
