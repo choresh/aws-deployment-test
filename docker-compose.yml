@@ -37,7 +37,7 @@ services:
   postgres:
     #container_name: postgres
     image: postgres:12.4-alpine
-    ports:s
+    ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
