@@ -7,14 +7,13 @@ REM * IMPORTENT:
 REM     * Never expose the Access Keys!!!
 REM     * Use them only at your local machine!!!
 REM     * If they became public - be shure that some automatic scanners will detect them, and some one will try to use your credintials in order to consume AWS resources on you buddget!!!
-REM     * Such an exposure can happened by mistake, e.g. if yoy push file 'create-cluster' to puplic GitHub, while those values defined in it!!!
+REM     * Such an exposure can happened by mistake, e.g. if you push this file to puplic GitHub, while those values defined in it!!!
 SET AWS_ACCESS_KEY_ID=
 SET AWS_SECRET_ACCESS_KEY=
 REM =============================================================================================
 
 SET APP_NAME=aws-deployment-test
 SET REGION=us-east-2
-REM TODO: 8080
 SET PORT=8080
 
 SET RESOURCES_SUFFIX=1
