@@ -76,7 +76,7 @@ REM ================= 1st part - end ==============================
 
 
 REM ================= 2nd part - start ==============================
-REM In this part we then build docker image, and push it to our reposetory.
+REM In this part we build docker image, and push it to our reposetory.
 
 SET MSG=* Authenticate Docker to an Amazon ECR reposetory - started
 ECHO [201;93m%MSG%[0m
@@ -203,7 +203,8 @@ ECHO [201;93m%MSG%[0m
 
 SET MSG=* Fetch Subnets info - started
 ECHO [201;93m%MSG%[0m
-REM * Get value of 2nd line at file %TEMP_FILE_NAME%.
+
+REM * Get value of **2ND** line at file %TEMP_FILE_NAME%.
 REM * Strip redundent parts at start/end of the found string.
 SET FOUND_SUBNET_1_LINE=
 FOR /F "skip=1 delims=" %%i IN (%TEMP_FILE_NAME%) DO IF NOT DEFINED FOUND_SUBNET_1_LINE SET FOUND_SUBNET_1_LINE=%%i
@@ -211,13 +212,14 @@ SET FOUND_SUBNET_1_ID=%FOUND_SUBNET_1_LINE:~5,24%%
 SET MSG=* Found Subnet 1 Id: %FOUND_SUBNET_1_ID%
 ECHO [201;93m%MSG%[0m
 
-REM * Get value of 3rd line at file %TEMP_FILE_NAME%.
+REM * Get value of **3RD** line at file %TEMP_FILE_NAME%.
 REM * Strip redundent parts at start/end of the found string.
 SET FOUND_SUBNET_2_LINE=
 FOR /F "skip=2 delims=" %%i IN (%TEMP_FILE_NAME%) DO IF NOT DEFINED FOUND_SUBNET_2_LINE SET FOUND_SUBNET_2_LINE=%%i
 SET FOUND_SUBNET_2_ID=%FOUND_SUBNET_2_LINE:~5,24%%
 SET MSG=* Found Subnet 2 Id: %FOUND_SUBNET_2_ID%
 ECHO [201;93m%MSG%[0m
+
 SET MSG=* Fetch Subnets info - ended
 ECHO [201;93m%MSG%[0m
 
