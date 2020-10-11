@@ -8,12 +8,12 @@ services:
       - postgres
     environment:       
       PG_HOST: postgres
-    logging:
-      driver: awslogs
-      options: 
-        awslogs-group: aws-deployment-test
-        awslogs-region: us-east-2
-        awslogs-stream-prefix: aws-deployment-test
+    # logging:
+    #   driver: awslogs
+    #   options: 
+    #     awslogs-group: aws-deployment-test
+    #     awslogs-region: us-east-2
+    #     awslogs-stream-prefix: aws-deployment-test
   postgres:
     image: postgres:12.4-alpine
     ports:
