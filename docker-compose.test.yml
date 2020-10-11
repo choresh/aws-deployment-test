@@ -3,33 +3,22 @@ services:
   aws-deployment-test:
     image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test:latest 
     container_name: aws-deployment-test
+    build: .
     depends_on:
       - postgres
     environment:       
-      PG_HOST: postgres
-    logging:
-      driver: awslogs
-      options: 
-        awslogs-group: aws-deployment-test
-        awslogs-region: us-east-2
-        awslogs-stream-prefix: aws-deployment-test 
+      PG_HOST: postgres    
   postgres:
     container_name: postgres
     image: postgres:12.4-alpine
-    environment:
+  environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: aws-deployment-test
   sut:
-    image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test:latest 
+    build: .
     depends_on:
       - aws-deployment-test
     environment:
-      SERVICE_HOST: aws-deployment-test
-    # logging:
-    #   driver: awslogs
-    #   options: 
-    #     awslogs-group: sut
-    #     awslogs-region: us-east-2
-    #     awslogs-stream-prefix: sut     
+      SERVICE_HOST: aws-deployment-test    
     command: npm run test
