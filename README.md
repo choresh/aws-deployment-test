@@ -134,7 +134,15 @@
         * Validate that entire workflow works fine.
    
 ### Install, build and run the application:
-* TODO 
+* TODO
+* To view available services, and thire URLs - run the folowing command:
+    ~~~
+    ecs-cli compose --project-name <cluster-name> service ps --cluster-config <cluster-name> --ecs-profile <cluster-name>
+    ~~~
+* E.g:
+    ~~~
+    ecs-cli compose --project-name aws-deployment-test service ps --cluster-config aws-deployment-test --ecs-profile aws-deployment-test
+    ~~~
 
 ## Testing the application
 * This should done while the application already runs (in **docker machine**, in **local machine** or in **cloud** (see explanation about those 3 options above)).
