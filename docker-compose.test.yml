@@ -1,29 +1,35 @@
 version: "3"
 services:
   aws-deployment-test:
-    # TODO: repositoryUri!!!
-    # TODO: aws-deployment-test!!!
     image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test:latest 
     container_name: aws-deployment-test
-    build: .
     depends_on:
       - postgres
     environment:       
-      PG_HOST: postgres    
+      PG_HOST: postgres
+    logging:
+      driver: awslogs
+      options: 
+        awslogs-group: aws-deployment-test
+        awslogs-region: us-east-2
+        awslogs-stream-prefix: aws-deployment-test 
   postgres:
     container_name: postgres
     image: postgres:12.4-alpine
-    # TODO: aws-deployment-test/postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: aws-deployment-test
   sut:
-    build: .
-    # TODO: aws-deployment-test!!!     
+    image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test:latest 
     depends_on:
       - aws-deployment-test
     environment:
-      # TODO: aws-deployment-test!!!     
-      SERVICE_HOST: aws-deployment-test    
+      SERVICE_HOST: aws-deployment-test
+    logging:
+      driver: awslogs
+      options: 
+        awslogs-group: aws-deployment-test
+        awslogs-region: us-east-2
+        awslogs-stream-prefix: aws-deployment-test     
     command: npm run test
