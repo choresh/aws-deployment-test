@@ -26,10 +26,10 @@ services:
       - aws-deployment-test
     environment:
       SERVICE_HOST: aws-deployment-test
-    logging:
-      driver: awslogs
-      options: 
-        awslogs-group: sut
-        awslogs-region: us-east-2
-        awslogs-stream-prefix: sut     
+    # logging:
+    #   driver: awslogs
+    #   options: 
+    #     awslogs-group: sut
+    #     awslogs-region: us-east-2
+    #     awslogs-stream-prefix: sut     
     command: npm run test
