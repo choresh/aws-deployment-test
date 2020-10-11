@@ -339,23 +339,36 @@ ECHO [201;93m%MSG%[0m
 SET /P FOUND_TASK_DEFINITION= < %TEMP_FILE_NAME%
 SET MSG=* Found Task Definition: %FOUND_TASK_DEFINITION%
 ECHO [201;93m%MSG%[0m
+FOR /f "tokens=1,2 delims=/" %%a IN (%FOUND_TASK_DEFINITION%) DO (
+	SET SHORT_TASK_DEFINITION=%%b
+)
+SET MSG=* Short Task Definition: %SHORT_TASK_DEFINITION%
+ECHO [201;93m%MSG%[0m
 SET MSG=* Fetch Task Definition info - ended
 ECHO [201;93m%MSG%[0m
 
 SET MSG=* Set GitHub params - started
 ECHO [201;93m%MSG%[0m
-CALL node %MY_UTILS_PATH% --github-params %GITHUB_PARAMS_TEMPLATE_FILE_NAME% %GITHUB_PARAMS_FILE_NAME% %REGION% %ECR_REPOSITORY% %FOUND_TASK_DEFINITION% %CONTAINER_NAME% %SERVICE_NAME% %CLUSTER_NAME%
+CALL node %MY_UTILS_PATH% --github-params %GITHUB_PARAMS_TEMPLATE_FILE_NAME% %GITHUB_PARAMS_FILE_NAME% %REGION% %ECR_REPOSITORY% %SHORT_TASK_DEFINITION% %CONTAINER_NAME% %SERVICE_NAME% %CLUSTER_NAME%
 SET MSG=* Set GitHub params - ended
 ECHO [201;93m%MSG%[0m
 
-
 REM ================= 4th part - end ==============================
 
+
+REM ================= termination part - start ==============================
+
 :END
+
 IF DEFINED ERR_MSG (
     ECHO [201;93m%ERR_MSG%[0m
 )
+
 SET MSG=* The entire sequence has ended
 ECHO [201;93m%MSG%[0m
+
 PAUSE
+
 @ECHO ON
+
+REM ================= termination part - end ==============================
