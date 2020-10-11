@@ -29,7 +29,7 @@ services:
     logging:
       driver: awslogs
       options: 
-        awslogs-group: aws-deployment-test
+        awslogs-group: sut
         awslogs-region: us-east-2
-        awslogs-stream-prefix: aws-deployment-test     
+        awslogs-stream-prefix: sut     
     command: npm run test
