@@ -1,6 +1,7 @@
 @ECHO OFF
 
-REM =============================================================================================
+REM ================= Section #1 - Secret Keys - start ==============================
+REM * In this section we store credintials required for the AWS/ECS CLI's.
 REM * More about those Access Keys - see the following chapters in 'README.md' file of this package:
 REM     * 'At AWS - create IAM user, and get correspond access keys'.
 REM     * 'Configure our batch file'.
@@ -9,28 +10,34 @@ REM     * Never expose those Access Keys!!!
 REM     * Use them only at private environment (e.g. your local machine)!!!
 REM     * If they became public - be sure that some automatic scanners will detect them, and someone will try to use your credentials in order to consume AWS resources on you budget!!!
 REM     * Such an exposure may happened by mistake, e.g. if you push this file to public GitHub, while those values defined in it!!!
-SET AWS_ACCESS_KEY_ID=
-SET AWS_SECRET_ACCESS_KEY=
-REM =============================================================================================
+SET AWS_ACCESS_KEY_ID=AKIAV37SPN6ITRHVEGQ2
+SET AWS_SECRET_ACCESS_KEY=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
+REM
+REM ================= Section #1 - Secret Keys - end ==============================
+
+
+REM ================= Section #2 - Settings - start ==============================
+REM In this section we define all required settings varaibles.
 
 SET APP_NAME=aws-deployment-test
 SET REGION=us-east-2
 SET PORT=8080
 
-SET AWS_DATA_FOLDER=aws/data/
-SET AWS_TEMP_FOLDER=aws/temp/
-SET TEMP_FILE_NAME=%AWS_TEMP_FOLDER%temp.txt
-SET GITHUB_WORKFLOWS_FOLDER=.github\workflows/
-SET ROLE_POLICY_FILE=%AWS_DATA_FOLDER%task-execution-assume-role.json
-SET ECS_PARAMS_TEMPLATE_FILE_NAME=%AWS_DATA_FOLDER%ecs-params-template.yml
-SET ECS_PARAMS_FILE_NAME=%AWS_TEMP_FOLDER%ecs-params.yml
-SET GITHUB_PARAMS_TEMPLATE_FILE_NAME=%GITHUB_WORKFLOWS_FOLDER%deploy-to-aws-template.yml
-SET GITHUB_PARAMS_FILE_NAME=%GITHUB_WORKFLOWS_FOLDER%deploy-to-aws.yml
-SET MY_UTILS_PATH="%~dp0build/aws/src/create-cluster-utils.js"
+SET DATA_FOLDER=data
+SET TEMP_FOLDER=temp
+SET AWS_FOLDER=aws
+SET AWS_DATA_FOLDER=%AWS_FOLDER%/%DATA_FOLDER%
+SET AWS_TEMP_FOLDER=%AWS_FOLDER%/%TEMP_FOLDER%
+SET TEMP_FILE_NAME=%AWS_TEMP_FOLDER%/temp.txt
+SET GITHUB_WORKFLOWS_FOLDER=.github/workflows
+SET ROLE_POLICY_FILE=%AWS_DATA_FOLDER%/task-execution-assume-role.json
+SET ECS_PARAMS_TEMPLATE_FILE_NAME=%AWS_DATA_FOLDER%/ecs-params-template.yml
+SET ECS_PARAMS_FILE_NAME=%AWS_TEMP_FOLDER%/ecs-params.yml
+SET GITHUB_PARAMS_TEMPLATE_FILE_NAME=%GITHUB_WORKFLOWS_FOLDER%/deploy-to-aws-template.yml
+SET GITHUB_PARAMS_FILE_NAME=%GITHUB_WORKFLOWS_FOLDER%/deploy-to-aws.yml
 
 SET ROLE_NAME=%APP_NAME% 
 SET PROFILE_NAME=%APP_NAME%
-SET STACK_NAME=%APP_NAME%
 SET REPOSITORY_NAME=%APP_NAME%
 SET CLUSTER_NAME=%APP_NAME%
 SET ECR_REPOSITORY=%APP_NAME%
@@ -39,20 +46,34 @@ SET CONTAINER_NAME=%APP_NAME%
 SET PROJECT_NAME=%APP_NAME%
 SET CLUSTER_CONFIG_NAME=%APP_NAME%
 
+REM Create the 'temp' folder (if not exists)
+CD %AWS_FOLDER%
+MD %TEMP_FOLDER% 2> NUL
+CD ..
+
+REM ================= Section #2 - Settings - end ==============================
+
+
+REM ================= Section #3 - Resources Clearing - start ==============================
+REM In this section we clear the most importent AWS resources (if exists).
+
 SET MSG=* Clear all resources (if exists) - started (may take few minutes...)
 ECHO [201;93m%MSG%[0m
-ecs-cli compose --project-name %PROJECT_NAME% service down --cluster-config %CLUSTER_CONFIG_NAME% --ecs-profile %PROFILE_NAME% > nul 2>&1
-ecs-cli down --cluster-config %CLUSTER_CONFIG_NAME% --ecs-profile %PROFILE_NAME% --force > nul 2>&1
-aws ecr delete-repository --repository-name %REPOSITORY_NAME% --region %REGION% --force > nul 2>&1
+ecs-cli compose --project-name %PROJECT_NAME% service down --cluster-config %CLUSTER_CONFIG_NAME% --ecs-profile %PROFILE_NAME% > NUL 2>&1
+ecs-cli down --cluster-config %CLUSTER_CONFIG_NAME% --ecs-profile %PROFILE_NAME% --force > NUL 2>&1
+aws ecr delete-repository --repository-name %REPOSITORY_NAME% --region %REGION% --force > NUL 2>&1
 SET MSG=* Clear all resources (if exists) - ended
 ECHO [201;93m%MSG%[0m
 
-REM ================= 1st part - start ==============================
-REM In this part we create AWS repository (if not exists yet).
+REM ================= Section #3 - Resources Clearing - end ==============================
+
+
+REM ================= Section #4 - AWS Repository Creation - start ==============================
+REM In this section we create AWS repository (if not exists yet).
 
 SET MSG=* Get Repository info - started
 ECHO [201;93m%MSG%[0m
-aws ecr describe-repositories --repository-names %REPOSITORY_NAME% --region %REGION% --query repositories[0].repositoryUri > %TEMP_FILE_NAME% 2> nul
+aws ecr describe-repositories --repository-names %REPOSITORY_NAME% --region %REGION% --query repositories[0].repositoryUri > %TEMP_FILE_NAME% 2> NUL
 SET MSG=* Get Repository info - ended
 ECHO [201;93m%MSG%[0m
 
@@ -72,15 +93,15 @@ ECHO [201;93m%MSG%[0m
 SET MSG=* Fetch Repository info - ended
 ECHO [201;93m%MSG%[0m
 
-REM ================= 1st part - end ==============================
+REM ================= Section #4 - AWS Repository Creation - end ==============================
 
 
-REM ================= 2nd part - start ==============================
-REM In this part we build docker image, and push it to our reposetory.
+REM ================= Section #5 - Docker Image Creation - start ==============================
+REM In this section we build docker image, and push it to our reposetory.
 
 SET MSG=* Authenticate Docker to an Amazon ECR reposetory - started
 ECHO [201;93m%MSG%[0m
-aws ecr get-login-password --region %REGION% | docker login --username AWS --password-stdin %FOUND_REPOSITORY_URI% > nul
+aws ecr get-login-password --region %REGION% | docker login --username AWS --password-stdin %FOUND_REPOSITORY_URI% > NUL
 IF NOT %errorlevel% == 0 (
   SET ERR_MSG=* Authenticate Docker to an Amazon ECR reposetory - failed, error code: %errorlevel%
   GOTO END
@@ -104,11 +125,10 @@ ECHO =====================================================================
 SET MSG=* Push - ended
 ECHO [201;93m%MSG%[0m
 
-REM ================= 2nd part - end ==============================
+REM ================= Section #5 - Docker Image Creation - end ==============================
 
-
-REM ================= 3rd part - start ==============================
-REM * In this part we create an AWS cluster with a fargate task. 
+REM ================= Section #6 - AWS Clustr Creation - start ==============================
+REM * In this section we create an AWS cluster with a fargate task. 
 REM * More info - see https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-ec2.html,
 REM   and its sub chapters:
 REM     * 'Installing the Amazon ECS CLI'.
@@ -117,7 +137,7 @@ REM     * 'Tutorial: Creating a Cluster with a Fargate Task Using the Amazon ECS
 
 SET MSG=* Create role (if not exists) - started
 ECHO [201;93m%MSG%[0m
-aws iam --region %REGION% create-role --role-name %ROLE_NAME% --assume-role-policy-document file://%ROLE_POLICY_FILE% > nul 2>&1
+aws iam --region %REGION% create-role --role-name %ROLE_NAME% --assume-role-policy-document file://%ROLE_POLICY_FILE% > NUL 2>&1
 IF NOT %errorlevel% == 0 (
     IF NOT %errorlevel% == 254 (
         SET ERR_MSG=* Create role - failed, error code: %errorlevel%
@@ -129,7 +149,7 @@ ECHO [201;93m%MSG%[0m
 
 SET MSG=* Attch role policy - started
 ECHO [201;93m%MSG%[0m
-aws iam --region %REGION% attach-role-policy --role-name %ROLE_NAME% --policy-arn arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy > nul
+aws iam --region %REGION% attach-role-policy --role-name %ROLE_NAME% --policy-arn arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy > NUL
 IF NOT %errorlevel% == 0 (
     SET ERR_MSG=* Attch role policy - failed, error code: %errorlevel%
     GOTO END
@@ -139,7 +159,7 @@ ECHO [201;93m%MSG%[0m
 
 SET MSG=* Create ECS CLI profile - started
 ECHO [201;93m%MSG%[0m
-ecs-cli configure profile --access-key %AWS_ACCESS_KEY_ID% --secret-key %AWS_SECRET_ACCESS_KEY% --profile-name %PROFILE_NAME% > nul
+ecs-cli configure profile --access-key %AWS_ACCESS_KEY_ID% --secret-key %AWS_SECRET_ACCESS_KEY% --profile-name %PROFILE_NAME% > NUL
 IF NOT %errorlevel% == 0 (
     SET ERR_MSG=* Create ECS CLI profile - failed, error code: %errorlevel%
     GOTO END
@@ -149,7 +169,7 @@ ECHO [201;93m%MSG%[0m
 
 SET MSG=* Create cluster configuration - started
 ECHO [201;93m%MSG%[0m
-ecs-cli configure --cluster %CLUSTER_NAME% --default-launch-type FARGATE --config-name %APP_NAME% --region %REGION% > nul
+ecs-cli configure --cluster %CLUSTER_NAME% --default-launch-type FARGATE --config-name %APP_NAME% --region %REGION% > NUL
 IF NOT %errorlevel% == 0 (
     SET ERR_MSG=* Create cluster configuration - failed, error code: %errorlevel%
     GOTO END
@@ -163,7 +183,7 @@ ECHO =====================================================================
 ecs-cli up --cluster-config %CLUSTER_CONFIG_NAME% --ecs-profile %PROFILE_NAME% --force
 ECHO =====================================================================
 IF NOT %errorlevel% == 0 (
-    SET ERR_MSG=* Create cluster configuration - failed, error code: %errorlevel%
+    SET ERR_MSG=* Create cluster - failed, error code: %errorlevel%
     GOTO END
 )
 SET MSG=* Create cluster - ended
@@ -208,16 +228,16 @@ REM * Get value of **2ND** line at file %TEMP_FILE_NAME%.
 REM * Strip redundent parts at start/end of the found string.
 SET FOUND_SUBNET_1_LINE=
 FOR /F "skip=1 delims=" %%i IN (%TEMP_FILE_NAME%) DO IF NOT DEFINED FOUND_SUBNET_1_LINE SET FOUND_SUBNET_1_LINE=%%i
-SET FOUND_SUBNET_1_ID=%FOUND_SUBNET_1_LINE:~5,24%%
-SET MSG=* Found Subnet 1 Id: %FOUND_SUBNET_1_ID%
+SET FOUND_SUBNET_1=%FOUND_SUBNET_1_LINE:~5,24%%
+SET MSG=* Found Subnet 1: %FOUND_SUBNET_1%
 ECHO [201;93m%MSG%[0m
 
 REM * Get value of **3RD** line at file %TEMP_FILE_NAME%.
 REM * Strip redundent parts at start/end of the found string.
 SET FOUND_SUBNET_2_LINE=
 FOR /F "skip=2 delims=" %%i IN (%TEMP_FILE_NAME%) DO IF NOT DEFINED FOUND_SUBNET_2_LINE SET FOUND_SUBNET_2_LINE=%%i
-SET FOUND_SUBNET_2_ID=%FOUND_SUBNET_2_LINE:~5,24%%
-SET MSG=* Found Subnet 2 Id: %FOUND_SUBNET_2_ID%
+SET FOUND_SUBNET_2=%FOUND_SUBNET_2_LINE:~5,24%%
+SET MSG=* Found Subnet 2: %FOUND_SUBNET_2%
 ECHO [201;93m%MSG%[0m
 
 SET MSG=* Fetch Subnets info - ended
@@ -243,7 +263,7 @@ ECHO [201;93m%MSG%[0m
 
 SET MSG=* Add a security group rule to allow inbound access on port %PORT% - started
 ECHO [201;93m%MSG%[0m
-aws ec2 authorize-security-group-ingress --group-id %FOUND_SG_ID% --protocol tcp --port %PORT% --cidr 0.0.0.0/0 --region %REGION% > nul 2>&1
+aws ec2 authorize-security-group-ingress --group-id %FOUND_SG_ID% --protocol tcp --port %PORT% --cidr 0.0.0.0/0 --region %REGION% > NUL 2>&1
 IF NOT %errorlevel% == 0 (
     IF NOT %errorlevel% == 254 (
         SET ERR_MSG=* Add a security group rule to allow inbound access on port %PORT% - failed, error code: %errorlevel%
@@ -265,7 +285,10 @@ REM ECHO [201;93m%MSG%[0m
 
 SET MSG=* Set ECS params - started
 ECHO [201;93m%MSG%[0m
-CALL node %MY_UTILS_PATH% --ecs-params %ECS_PARAMS_TEMPLATE_FILE_NAME% %ECS_PARAMS_FILE_NAME% %ROLE_NAME% %FOUND_SUBNET_1_ID% %FOUND_SUBNET_2_ID% %FOUND_SG_ID%
+POWERSHELL -Command "(gc %ECS_PARAMS_TEMPLATE_FILE_NAME%) -replace '#ROLE_NAME#', '%ROLE_NAME%' | Out-File -encoding ASCII %ECS_PARAMS_FILE_NAME%"
+POWERSHELL -Command "(gc %ECS_PARAMS_FILE_NAME%) -replace '#SUBNET_1#', '%FOUND_SUBNET_1%'  | Out-File -encoding ASCII %ECS_PARAMS_FILE_NAME%"
+POWERSHELL -Command "(gc %ECS_PARAMS_FILE_NAME%) -replace '#SUBNET_2#', '%FOUND_SUBNET_2%'  | Out-File -encoding ASCII %ECS_PARAMS_FILE_NAME%"
+POWERSHELL -Command "(gc %ECS_PARAMS_FILE_NAME%) -replace '#SG_ID#', '%FOUND_SG_ID%' | Out-File -encoding ASCII %ECS_PARAMS_FILE_NAME%"
 SET MSG=* Set ECS params - ended
 ECHO [201;93m%MSG%[0m
 
@@ -293,9 +316,11 @@ IF NOT %errorlevel% == 0 (
 SET MSG=* Display info about cluster's running containers - ended
 ECHO [201;93m%MSG%[0m
 
-SET MSG=* Scale the tasks on the cluster - started
+SET MSG=* Scale the tasks on the cluster - started (may take few minutes...)
 ECHO [201;93m%MSG%[0m
+ECHO =====================================================================
 ecs-cli compose --project-name %PROJECT_NAME% service scale 2 --cluster-config %CLUSTER_CONFIG_NAME% --ecs-profile %PROFILE_NAME%
+ECHO =====================================================================
 IF NOT %errorlevel% == 0 (
     SET ERR_MSG=* Scale the tasks on the cluster - failed, error code: %errorlevel%
     GOTO END
@@ -315,11 +340,11 @@ IF NOT %errorlevel% == 0 (
 SET MSG=* Display info about cluster's running containers, after scale - ended
 ECHO [201;93m%MSG%[0m
 
-REM ================= 3rd part - end ==============================
+REM ================= Section #6 - AWS Clustr Creation - end ==============================
 
 
-REM ================= 4th part - start ==============================
-REM * In this part we create a GitHub workflow, to soppurt CI/CD.
+REM ================= Section #7 - GitHub Workflow Creation - start ==============================
+REM * In this section we create a GitHub workflow, to soppurt CI/CD.
 REM * With this workflow, an automatic build and push of docker image into the AWS reposetory will be executed on each GitHub push.
 REM * More info - see https://medium.com/javascript-in-plain-english/deploy-your-node-app-to-aws-container-service-via-github-actions-build-a-pipeline-c114adeb8903,
 REM   and its sub chapters:
@@ -339,28 +364,36 @@ ECHO [201;93m%MSG%[0m
 SET MSG=* Fetch Task Definition info - started
 ECHO [201;93m%MSG%[0m
 SET /P FOUND_TASK_DEFINITION= < %TEMP_FILE_NAME%
-SET MSG=* Found Task Definition: %FOUND_TASK_DEFINITION%
-ECHO [201;93m%MSG%[0m
 FOR /f "tokens=1,2 delims=/" %%a IN (%FOUND_TASK_DEFINITION%) DO (
-	SET SHORT_TASK_DEFINITION=%%b
+	SET TASK_DEFINITION=%%b
 )
-SET MSG=* Short Task Definition: %SHORT_TASK_DEFINITION%
+SET MSG=* Found Task Definition: %TASK_DEFINITION%
 ECHO [201;93m%MSG%[0m
 SET MSG=* Fetch Task Definition info - ended
 ECHO [201;93m%MSG%[0m
 
 SET MSG=* Set GitHub params - started
 ECHO [201;93m%MSG%[0m
-CALL node %MY_UTILS_PATH% --github-params %GITHUB_PARAMS_TEMPLATE_FILE_NAME% %GITHUB_PARAMS_FILE_NAME% %REGION% %ECR_REPOSITORY% %SHORT_TASK_DEFINITION% %CONTAINER_NAME% %SERVICE_NAME% %CLUSTER_NAME%
+POWERSHELL -Command "(gc %GITHUB_PARAMS_TEMPLATE_FILE_NAME%) -replace '#REGION#', '%REGION%' | Out-File -encoding ASCII %GITHUB_PARAMS_FILE_NAME%"
+POWERSHELL -Command "(gc %GITHUB_PARAMS_FILE_NAME%) -replace '#ECR_REPOSITORY#', '%ECR_REPOSITORY%' | Out-File -encoding ASCII %GITHUB_PARAMS_FILE_NAME%"
+POWERSHELL -Command "(gc %GITHUB_PARAMS_FILE_NAME%) -replace '#TASK_DEFINITION#', '%TASK_DEFINITION%' | Out-File -encoding ASCII %GITHUB_PARAMS_FILE_NAME%"
+POWERSHELL -Command "(gc %GITHUB_PARAMS_FILE_NAME%) -replace '#CONTAINER_NAME#', '%CONTAINER_NAME%' | Out-File -encoding ASCII %GITHUB_PARAMS_FILE_NAME%"
+POWERSHELL -Command "(gc %GITHUB_PARAMS_FILE_NAME%) -replace '#SERVICE_NAME#', '%SERVICE_NAME%' | Out-File -encoding ASCII %GITHUB_PARAMS_FILE_NAME%"
+POWERSHELL -Command "(gc %GITHUB_PARAMS_FILE_NAME%) -replace '#CLUSTER_NAME#', '%CLUSTER_NAME%' | Out-File -encoding ASCII %GITHUB_PARAMS_FILE_NAME%"
 SET MSG=* Set GitHub params - ended
-ECHO [201;93m%MSG%[0m
+ECHO [201;93m%MSG%[0m"
 
-REM ================= 4th part - end ==============================
+REM ================= Section #7 - GitHub Workflow Creation - end ==============================
 
 
-REM ================= termination part - start ==============================
+REM ================= Section #8 - Termination - start ==============================
 
 :END
+
+REM Delete the 'temp' folder
+CD %AWS_FOLDER%
+RMDIR /S /Q %TEMP_FOLDER%
+CD ..
 
 IF DEFINED ERR_MSG (
     ECHO [201;93m%ERR_MSG%[0m
@@ -370,7 +403,6 @@ SET MSG=* The entire sequence has ended
 ECHO [201;93m%MSG%[0m
 
 PAUSE
-
 @ECHO ON
 
-REM ================= termination part - end ==============================
+REM ================= Section #8 - Termination - end ==============================
