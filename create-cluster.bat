@@ -10,8 +10,8 @@ REM     * Never expose those Access Keys!!!
 REM     * Use them only at private environment (e.g. your local machine)!!!
 REM     * If they became public - be sure that some automatic scanners will detect them, and someone will try to use your credentials in order to consume AWS resources on you budget!!!
 REM     * Such an exposure may happened by mistake, e.g. if you push this file to public GitHub, while those values defined in it!!!
-SET AWS_ACCESS_KEY_ID=AKIAV37SPN6ITRHVEGQ2
-SET AWS_SECRET_ACCESS_KEY=skFDrd+T30MTw51nsEPL/0Av/2VGDcCX2ggv8ViC
+SET AWS_ACCESS_KEY_ID=
+SET AWS_SECRET_ACCESS_KEY=
 REM
 REM ================= Section #1 - Secret Keys - end ==============================
 
@@ -77,13 +77,21 @@ aws ecr describe-repositories --repository-names %REPOSITORY_NAME% --region %REG
 SET MSG=* Get Repository info - ended
 ECHO [201;93m%MSG%[0m
 
-IF NOT %errorlevel% == 0 (
-    SET MSG=* Create repository - started
-    ECHO [201;93m%MSG%[0m
-    aws ecr create-repository --repository-name %REPOSITORY_NAME% --region %REGION% --query repository.repositoryUri > %TEMP_FILE_NAME%
-    SET MSG=* Create repository - ended
-    ECHO [201;93m%MSG%[0m
+IF %errorlevel% == 0 (
+    GOTO REPOSITORY_EXISTS
 )
+
+SET MSG=* Create repository - started
+ECHO [201;93m%MSG%[0m
+aws ecr create-repository --repository-name %REPOSITORY_NAME% --region %REGION% --query repository.repositoryUri > %TEMP_FILE_NAME%
+IF NOT %errorlevel% == 0 (
+    SET ERR_MSG=* Create repository - failed, error code: %errorlevel%
+    GOTO END
+)
+SET MSG=* Create repository - ended
+ECHO [201;93m%MSG%[0m
+
+:REPOSITORY_EXISTS
 
 SET MSG=* Fetch Repository info - started
 ECHO [201;93m%MSG%[0m
@@ -381,7 +389,7 @@ POWERSHELL -Command "(gc %GITHUB_PARAMS_FILE_NAME%) -replace '#CONTAINER_NAME#',
 POWERSHELL -Command "(gc %GITHUB_PARAMS_FILE_NAME%) -replace '#SERVICE_NAME#', '%SERVICE_NAME%' | Out-File -encoding ASCII %GITHUB_PARAMS_FILE_NAME%"
 POWERSHELL -Command "(gc %GITHUB_PARAMS_FILE_NAME%) -replace '#CLUSTER_NAME#', '%CLUSTER_NAME%' | Out-File -encoding ASCII %GITHUB_PARAMS_FILE_NAME%"
 SET MSG=* Set GitHub params - ended
-ECHO [201;93m%MSG%[0m"
+ECHO [201;93m%MSG%[0m
 
 REM ================= Section #7 - GitHub Workflow Creation - end ==============================
 
