@@ -53,63 +53,66 @@
 ### Prerequisite installations/configurations:
 * At AWS - create IAM user, and get correspond acess keys (this is a **user for operations of ECS/AWS CLI's in our batch file**):
     * More info in this issue - see pargraphs 'Create an IAM user' and 'Create a key pair', here: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/get-set-up-for-amazon-ecs.html.
-    * Create new policy, in **one** of the folowing wayes:
-        * Via AWS console (at IAM section) - by UI editor:
-            ~~~
-            Service                     | Action
-            --------------------------------------------------------
-            EC2                         | ec2:DescribeSubnets
-            EC2                         | ec2:DescribeVpcs
-            IAM                         | iam:CreateServiceLinkedRole
-            IAM                         | iam:AttachRolePolicy
-            CloudFormation              | cloudformation:*
-            Elastic Container Service   | ecs:*
-            CloudWatch                  | Logsogs:*
-            Cloud Map                   | servicediscovery:*
-            ELB v2                      | elasticloadbalancing:*
-            ~~~
-        * Via AWS console (at IAM section) - by JSON:
-            ~~~
-            {
-                "Version": "2012-10-17",
-                "Statement": [
-                    {
-                        "Sid": "VisualEditor0",
-                        "Effect": "Allow",
-                        "Action": [
-                            "servicediscovery:*",
-                            "iam:CreateServiceLinkedRole",
-                            "ec2:DescribeVpcs",
-                            "logs:*",
-                            "ecs:*",
-                            "cloudformation:*",
-                            "iam:AttachRolePolicy",
-                            "elasticloadbalancing:*",
-                            "ec2:DescribeSubnets"
-                        ],
-                        "Resource": "*"
-                    }
-                ]
-            }
-            ~~~
-        * Via AWS CLI:
-            * At AWS console - create user for AWS CLI, and save its credintials (if not done yet).
-            * Install AWS CLI (if not done yet).
-            * Set credintials in the AWS CLI (if not done yet).
-            * Import the policy JSON to AWS:
-                * TODO
-    * Create IAM user, and attch to it the created policy,in **one** of the folowing wayes:
-        * Via AWS console (at IAM section):
-            * TODO
-        * Via AWS CLI:
-            * TODO   
-    * Create Access Keys, and save/copy the 2 values, ,in **one** of the folowing wayes:
-        * Via AWS console (at IAM section):
-            * TODO
-        * Via AWS CLI:
-            * TODO    
+    * Open the WAS console, navigate to the 'IAM' section, and perform the folowing steps:
+        * Create new policy, with all permissions required for the AWS/ECS CLI comands we going to use:
+            * Go to 'Policies' -> 'Create Policy' -> 'JSON', and paste this JSON text:
+                ~~~
+                {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Sid": "VisualEditor0",
+                            "Effect": "Allow",
+                            "Action": [
+                                "logs:*",
+                                "servicediscovery:*",
+                                "cloudformation:*",
+                                "elasticloadbalancing:*",
+                                "ecs:*",
+                                "iam:CreateRole",
+                                "iam:AttachRolePolicy",
+                                "iam:PassRole",
+                                "iam:CreateServiceLinkedRole",        				
+                                "ec2:DeleteSubnet",               
+                                "ec2:CreateVpc",
+                                "ec2:DescribeVpcs",
+                                "ec2:DescribeSubnets",
+                                "ec2:DescribeSecurityGroups",
+                                "ec2:AttachInternetGateway",
+                                "ec2:DeleteRouteTable",
+                                "ec2:AssociateRouteTable",
+                                "ec2:DescribeNetworkInterfaces",
+                                "ec2:CreateRoute",
+                                "ec2:CreateInternetGateway",
+                                "ec2:ModifyVpcAttribute",
+                                "ec2:DeleteInternetGateway",
+                                "ec2:DescribeInternetGateways",
+                                "ec2:DeleteRoute",
+                                "ec2:CreateRouteTable",
+                                "ec2:DetachInternetGateway",
+                                "ec2:DescribeRouteTables",
+                                "ec2:DisassociateRouteTable",              
+                                "ec2:DeleteVpc",
+                                "ec2:CreateSubnet",
+                                "ec2:DescribeAvailabilityZones",
+                                "ec2:DescribeAccountAttributes",             
+                                "ecr:GetAuthorizationToken",
+                                "ecr:CreateRepository",
+                                "ecr:InitiateLayerUpload",
+                                "ecr:UploadLayerPart",
+                                "ecr:CompleteLayerUpload",
+                                "ecr:DescribeRepositories"            
+                            ],
+                            "Resource": "*"
+                        }
+                    ]
+                }
+                ~~~
+            * Click the 'Review policy' button, and at next page click the 'Create policy' bytton.
+        * Go to 'Users' - > 'Add user', create new user, and attch to it the created policy.
+        * Within detailes page of the new user, go to 'Security credentials' tab, create new Access Keys, and save/copy the 2 values (we will use them at next step).
 * Configure our batch file:
-    * Go to root folder of the app (the folder where file 'docker-compose.yml' located), open file 'create-cluster.bat', and set the Access Keys values (see previos paragraph) in the 'AWS_ACCESS_KEY_ID' and 'AWS_SECRET_ACCESS_KEY' variables.
+    * Go to root folder of the app (the folder where file 'docker-compose.yml' located), open file 'create-cluster.bat', and set the Access Keys values (see previos step) in the 'AWS_ACCESS_KEY_ID' and 'AWS_SECRET_ACCESS_KEY' variables.
 * Execute our batch file:
     * Go to root folder of the app (the folder where file 'docker-compose.yml' located), and execute the following batch file:
         ~~~
