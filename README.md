@@ -51,10 +51,10 @@
 ## Run the application in **cloud**
 
 ### Prerequisite installations/configurations:
-* At AWS - create IAM user, and get correspond acess keys (this is a **user for operations of ECS/AWS CLI's in our batch file**):
+* At AWS - create IAM user, and get correspond acess keys (this is a **user for operations of ECS/AWS/DOCKER CLI's in our batch file**):
     * More info in this issue - see pargraphs 'Create an IAM user' and 'Create a key pair', here: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/get-set-up-for-amazon-ecs.html.
     * Open the WAS console, navigate to the 'IAM' section, and perform the folowing steps:
-        * Create new policy, with all permissions required for the AWS/ECS CLI comands we going to use:
+        * Create new policy, with all permissions required for the AWS/ECS/DOCKER CLI comands we going to use:
             * Go to 'Policies' -> 'Create Policy' -> 'JSON', and paste this JSON text:
                 ~~~
                 {
@@ -72,8 +72,8 @@
                                 "iam:CreateRole",
                                 "iam:AttachRolePolicy",
                                 "iam:PassRole",
-                                "iam:CreateServiceLinkedRole",        				
-                                "ec2:DeleteSubnet",               
+                                "iam:CreateServiceLinkedRole",
+                                "ec2:DeleteSubnet",
                                 "ec2:CreateVpc",
                                 "ec2:DescribeVpcs",
                                 "ec2:DescribeSubnets",
@@ -91,17 +91,19 @@
                                 "ec2:CreateRouteTable",
                                 "ec2:DetachInternetGateway",
                                 "ec2:DescribeRouteTables",
-                                "ec2:DisassociateRouteTable",              
+                                "ec2:DisassociateRouteTable",
                                 "ec2:DeleteVpc",
                                 "ec2:CreateSubnet",
                                 "ec2:DescribeAvailabilityZones",
-                                "ec2:DescribeAccountAttributes",             
+                                "ec2:DescribeAccountAttributes",
                                 "ecr:GetAuthorizationToken",
                                 "ecr:CreateRepository",
                                 "ecr:InitiateLayerUpload",
                                 "ecr:UploadLayerPart",
                                 "ecr:CompleteLayerUpload",
-                                "ecr:DescribeRepositories"            
+                                "ecr:DescribeRepositories",
+                                "ecr:BatchCheckLayerAvailability",
+                                "ecr:PutImage"
                             ],
                             "Resource": "*"
                         }
