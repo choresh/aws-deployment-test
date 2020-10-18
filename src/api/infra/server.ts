@@ -2,7 +2,7 @@ import express, { Express } from "express";
 import Router from "express-promise-router";
 import { json } from "body-parser";
 import console from "console";
-import { MessagesRouter } from "../routers/messages-router";
+import { Entity1Router } from "../routers/entity-1-router";
 
 const PORT = 8080;
 
@@ -18,8 +18,8 @@ export class Server {
     // Enable easy conversion from 'Promise' to express midleware
     this._app.use(this._router);
 
-    // Attach routers (cuurently - only one)
-    MessagesRouter.run(this._app, this._router);
+    // Attach routers (currently - only one)
+    Entity1Router.run(this._app, this._router);
     
     // Start listen for requests
     return new Promise((resolve, reject) => {

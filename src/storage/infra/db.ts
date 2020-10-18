@@ -34,7 +34,7 @@ export class Db {
       port: 5432,
       username: "postgres",
       password: "postgres", // Hard-coded password (TODO: not for pruduction!!!)
-      database: "messages-manager",
+      database: "aws-sample-app",
       synchronize: true, // Indicates if database schema should be auto created on every application launch (TODO: not for pruduction!!!)
       dropSchema: true, // Drops the schema each time connection is being established (TODO: not for pruduction!!!)
       logging: false,

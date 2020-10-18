@@ -1,4 +1,4 @@
-import { Message } from "../src/storage/entities/message";
+import { Entity1 } from "../src/storage/entities/entity-1";
 const superagent = require("superagent");
 var expect = require("chai").expect;
 
@@ -6,33 +6,33 @@ describe("REST API Tests", () => {
   
   // Clear the DB - before each run of this tests collection
   before(async () => {
-    const getRes: Response = await superagent.get("http://localhost:8080/api/messages");
-    let getResult: Message[] = <Message[]><any>getRes.body;
-    let deletePromises = getResult.map((currMessage: Message) => {
-        return superagent.delete("http://localhost:8080/api/messages/" + currMessage.id);
+    const getRes: Response = await superagent.get("http://localhost:8080/api/entity1s");
+    let getResult: Entity1[] = <Entity1[]><any>getRes.body;
+    let deletePromises = getResult.map((currEntity1: Entity1) => {
+        return superagent.delete("http://localhost:8080/api/entity1s/" + currEntity1.id);
     });
     await Promise.all(deletePromises);
   });
 
-  let payloads: string[] = ["123456", "12321", "abcdef", "abcba"];
+  let payloads: string[] = ["AAAAA", "BBBBB", "CCCCC", "DDDDD"];
 
-  it("Create messages", async () => {
+  it("Create entity1s", async () => {
     for (var i = 0; i < payloads.length; i++) {
-        const currRes: Response = await superagent.post("http://localhost:8080/api/messages")
+        const currRes: Response = await superagent.post("http://localhost:8080/api/entity1s")
                                                   .send({payload: payloads[i]});
-        let currResult: Message = <Message><any>currRes.body;
+        let currResult: Entity1 = <Entity1><any>currRes.body;
         expect(currResult).to.include({payload: payloads[i]});
     }   
   });
 
-  it("Retrieve all messages", async () => {
-    const res: Response = await superagent.get("http://localhost:8080/api/messages");
-    let result: Message[] = <Message[]><any>res.body;  
+  it("Retrieve all entity1s", async () => {
+    const res: Response = await superagent.get("http://localhost:8080/api/entity1s");
+    let result: Entity1[] = <Entity1[]><any>res.body;  
     expect(result.length).to.equal(payloads.length);  
-    let resultPayloads = result.map((currMessage: Message) => {
-        return currMessage.payload;
+    let resultPayloads = result.map((currEntity1: Entity1) => {
+        return currEntity1.payload;
     }); 
-    console.log("Retrieve all messages result payloads:", resultPayloads);
+    console.log("Retrieve all entity1s result payloads:", resultPayloads);
     expect(resultPayloads).to.have.all.members(payloads); 
   });
 });
