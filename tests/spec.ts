@@ -1,57 +1,38 @@
+import { Message } from "../src/storage/entities/message";
 const superagent = require("superagent");
 var expect = require("chai").expect;
 
-const CONNECTION_RETRY_COUNT: number = 10;
-const CONNECTION_RETRY_TIMEOUT_MS: number = 2000;
+describe("REST API Tests", () => {
+  
+  // Clear the DB - before each run of this tests collection
+  before(async () => {
+    const getRes: Response = await superagent.get("http://localhost:8080/api/messages");
+    let getResult: Message[] = <Message[]><any>getRes.body;
+    let deletePromises = getResult.map((currMessage: Message) => {
+        return superagent.delete("http://localhost:8080/api/messages/" + currMessage.id);
+    });
+    await Promise.all(deletePromises);
+  });
 
-// Env variable 'SERVICE_HOST' defined in 'docker-compose.test.yml', the 'localhost' will
-// be selected if run performed without the 'docker compose' command (e.g. while
-// developer runs the service locally, out of docker macine).
-const host: string = process.env.SERVICE_HOST || "localhost"; 
-const baseUrl: string = "http://" + host + ":8080";
+  let payloads: string[] = ["123456", "12321", "abcdef", "abcba"];
 
-async function waitforService(): Promise<void> {
-  console.log("Tests started, service base URL: '" + baseUrl + "'");    
-  return new Promise(async (resolve, reject)  => {
-    // * Do some attempts to connect to the service (in some cases need to
-    //   wait until the service (actually - postgress DB) is up, e.g. if entire creation
-    //   of the services done via 'docker-compose.yml').
-    // * TODO: this is temp solution, a better one will be to solve the synchronization
-    //   issue at the deployment mechanizem (i.e. at 'dockerfile' and/or 'docker-compose.yml'
-    //   files).
-    for (var i = 1; ; i++) {
-      try {
-        console.log("Connect to service started, attempt " + i + "/" + CONNECTION_RETRY_COUNT);
-        const res: Response = await superagent.get(baseUrl);
-        console.log("Connect to service ended");
-        resolve();
-        return;
-      } catch (err) {
-        console.log("MESSAGE:", err.message)
-        var isConnectionFailure: boolean = err.message && ((<string>err.message).startsWith("connect ECONNREFUSED"));
-        if ((i === CONNECTION_RETRY_COUNT) || !isConnectionFailure) {
-          console.log("Connect to service failed, error:", err);
-          reject("Connect to service failed, reason: " + err.message);
-          return;
-        }
-        await new Promise((resolve, reject) => {
-          setTimeout(() => {
-            resolve();
-          }, CONNECTION_RETRY_TIMEOUT_MS);
-        });  
-      }             
+  it("Create messages", async () => {
+    for (var i = 0; i < payloads.length; i++) {
+        const currRes: Response = await superagent.post("http://localhost:8080/api/messages")
+                                                  .send({payload: payloads[i]});
+        let currResult: Message = <Message><any>currRes.body;
+        expect(currResult).to.include({payload: payloads[i]});
     }   
   });
-}
 
-describe("REST API Tests", () => {  
-   
-  before(async () => {
-    await waitforService();
-  });
-
-  it("Test", async () => {
-    const res: Response = await superagent.get(baseUrl);
-    console.log(res.body);
+  it("Retrieve all messages", async () => {
+    const res: Response = await superagent.get("http://localhost:8080/api/messages");
+    let result: Message[] = <Message[]><any>res.body;  
+    expect(result.length).to.equal(payloads.length);  
+    let resultPayloads = result.map((currMessage: Message) => {
+        return currMessage.payload;
+    }); 
+    console.log("Retrieve all messages result payloads:", resultPayloads);
+    expect(resultPayloads).to.have.all.members(payloads); 
   });
 });

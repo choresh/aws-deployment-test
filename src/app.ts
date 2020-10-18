@@ -1,10 +1,11 @@
 import { Server } from "./api/infra/server";
+import { Db } from "./storage/infra/db";
 
 class App {
   public static run(): void {
-    Server.run()
+    Db.run()
       .then(() => {
-        console.log("Server is up.")
+        return Server.run();
       })
       .catch((err) => {
         console.error(err);
@@ -12,5 +13,3 @@ class App {
   }
 }
 App.run();
-
-

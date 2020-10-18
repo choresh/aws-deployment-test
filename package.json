@@ -7,9 +7,7 @@
     "pg": "8.3.3",
     "express": "4.17.1",
     "body-parser": "1.19.0",
-    "express-promise-router": "4.0.1",
-    "node-worker-threads-pool": "1.4.2",
-    "physical-cpu-count": "2.0.0"
+    "express-promise-router": "4.0.1"
   },
   "devDependencies": {
     "ts-node": "9.0.0",
