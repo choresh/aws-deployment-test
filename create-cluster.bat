@@ -67,7 +67,6 @@ CD ..
 
 REM ================= Section #2 - Settings - end ==============================
 
-
 REM ================= Section #3 - Resources Clearing - start ==============================
 REM In this section we clear the most importent AWS resources (if exists).
 
@@ -410,9 +409,9 @@ REM ================= Section #7 - GitHub Workflow Creation - end ==============
 
 REM ================= Section #8 - Termination - start ==============================
 
-SET MSG=* To newly view available services, and thire URLs - run the folowing command:
+SET MSG=* To newly view available services, and thire URLs - run the folowing command (within the project root folder):
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
-SET MSG=    aws ecs describe-services --services %SERVICE_NAME% --region %REGION% --cluster %CLUSTER_NAME%
+SET MSG=    ecs-cli compose --project-name %PROJECT_NAME% service ps --cluster-config %CLUSTER_CONFIG_NAME% --ecs-profile %PROFILE_NAME%
 ECHO [201;%WARNING_COLOR%m%MSG%[0m
 
 :END
