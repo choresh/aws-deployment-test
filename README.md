@@ -140,7 +140,7 @@
    
 ### Install, build and run the application:
 * TODO
-* To view available services, and thire URLs - run the folowing command:
+* To view available services, and thire URLs - go to root folder of the app (the folder where file 'package.json' located), and execute the following command:
     ~~~
     ecs-cli compose --project-name <cluster-name> service ps --cluster-config <cluster-name> --ecs-profile <cluster-name>
     ~~~
