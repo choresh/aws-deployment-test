@@ -149,6 +149,7 @@ ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
 
 REM ================= Section #5 - Docker Image Creation - end ==============================
 
+
 REM ================= Section #6 - AWS Clustr Creation - start ==============================
 REM * In this section we create an AWS cluster with a fargate task. 
 REM * More info - see https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-ec2.html,
