@@ -54,7 +54,7 @@
 * At AWS - create IAM user, and get correspond acess keys (this is a **user for operations of ECS/AWS/DOCKER CLI's in our batch file**):
     * More info in this issue - see pargraphs 'Create an IAM user' and 'Create a key pair', here: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/get-set-up-for-amazon-ecs.html.
     * Open the WAS console, navigate to the 'IAM' section, and perform the folowing steps:
-        * Create new policy, with all permissions required for the AWS/ECS/DOCKER CLI comands we going to use:
+        * Create custom policy:
             * Go to 'Policies' -> 'Create Policy' -> 'JSON', and paste this JSON text:
                 ~~~
                 {
@@ -64,46 +64,20 @@
                             "Sid": "VisualEditor0",
                             "Effect": "Allow",
                             "Action": [
-                                "logs:*",
-                                "servicediscovery:*",
                                 "cloudformation:*",
-                                "elasticloadbalancing:*",
-                                "ecs:*",
                                 "iam:CreateRole",
                                 "iam:AttachRolePolicy",
-                                "iam:PassRole",
-                                "iam:CreateServiceLinkedRole",
-                                "ec2:DeleteSubnet",
-                                "ec2:CreateVpc",
                                 "ec2:DescribeVpcs",
                                 "ec2:DescribeSubnets",
                                 "ec2:DescribeSecurityGroups",
-                                "ec2:AttachInternetGateway",
-                                "ec2:DeleteRouteTable",
-                                "ec2:AssociateRouteTable",
-                                "ec2:DescribeNetworkInterfaces",
-                                "ec2:CreateRoute",
-                                "ec2:CreateInternetGateway",
-                                "ec2:ModifyVpcAttribute",
-                                "ec2:DeleteInternetGateway",
                                 "ec2:DescribeInternetGateways",
-                                "ec2:DeleteRoute",
-                                "ec2:CreateRouteTable",
-                                "ec2:DetachInternetGateway",
                                 "ec2:DescribeRouteTables",
-                                "ec2:DisassociateRouteTable",
-                                "ec2:DeleteVpc",
-                                "ec2:CreateSubnet",
                                 "ec2:DescribeAvailabilityZones",
                                 "ec2:DescribeAccountAttributes",
-                                "ecr:GetAuthorizationToken",
-                                "ecr:CreateRepository",
-                                "ecr:InitiateLayerUpload",
-                                "ecr:UploadLayerPart",
-                                "ecr:CompleteLayerUpload",
-                                "ecr:DescribeRepositories",
-                                "ecr:BatchCheckLayerAvailability",
-                                "ecr:PutImage"
+                                "ec2:DeleteRouteTable",
+                                "ec2:DeleteInternetGateway",
+                                "ec2:DeleteRoute",
+                                "ec2:DeleteVpc"
                             ],
                             "Resource": "*"
                         }
@@ -111,7 +85,10 @@
                 }
                 ~~~
             * Click the 'Review policy' button, and at next page click the 'Create policy' bytton.
-        * Go to 'Users' - > 'Add user', create new user, and attch to it the created policy.
+        * Go to 'Users' - > 'Add user', create new user, and attach to it 3 policies (they required for the AWS/ECS/DOCKER CLI comands we going to execute at 'create-cluster.bat'):
+            * The costom policy (see previuos step).
+            * The 'AmazonECS_FullAccess' policy.
+            * The 'AmazonEC2ContainerRegistryFullAccess' policy.
         * Within detailes page of the new user, go to 'Security credentials' tab, create new Access Keys, and save/copy the 2 values (we will use them at next step).
 * Configure our batch file:
     * Go to root folder of the app (the folder where file 'docker-compose.yml' located), open file 'create-cluster.bat', and set the Access Keys values (see previos step) in the 'AWS_ACCESS_KEY_ID' and 'AWS_SECRET_ACCESS_KEY' variables.
