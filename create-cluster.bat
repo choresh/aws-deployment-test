@@ -58,7 +58,7 @@ SET WARNING_COLOR=93
 SET FAIL_COLOR=91
 SET ENDC_COLOR=0
 SET BOLD_COLOR=1
-SET UNDERLIN_COLOR=4
+SET UNDERLINE_COLOR=4
 
 REM Create the 'temp' folder (if not exists).
 CD %AWS_FOLDER%
@@ -146,7 +146,6 @@ docker push %FOUND_REPOSITORY_URI%
 ECHO =====================================================================
 SET MSG=* Push - ended
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
-PAUSE
 
 REM ================= Section #5 - Docker Image Creation - end ==============================
 
@@ -424,7 +423,7 @@ RMDIR /S /Q %TEMP_FOLDER%
 CD ..
 
 IF DEFINED ERR_MSG (
-    ECHO [201;%OKGREEN_COLOR%mERR_MSG%[0m
+    ECHO [201;%FAIL_COLOR%m%ERR_MSG%[0m
 )
 
 SET MSG=* The entire sequence has ended
