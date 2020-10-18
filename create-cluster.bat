@@ -50,15 +50,15 @@ SET PROJECT_NAME=%APP_NAME%
 SET CLUSTER_CONFIG_NAME=%APP_NAME%
 
 REM Define print colors.
-SET HEADER_COLOR=95
-SET OKBLUE_COLOR=94
-SET OKCYAN_COLOR=36
+REM SET HEADER_COLOR=95
+REM SET OKBLUE_COLOR=94
+REM SET OKCYAN_COLOR=36
 SET OKGREEN_COLOR=92
 SET WARNING_COLOR=93
 SET FAIL_COLOR=91
-SET ENDC_COLOR=0
-SET BOLD_COLOR=1
-SET UNDERLINE_COLOR=4
+REM SET ENDC_COLOR=0
+REM SET BOLD_COLOR=1
+REM SET UNDERLINE_COLOR=4
 
 REM Create the 'temp' folder (if not exists).
 CD %AWS_FOLDER%
@@ -66,6 +66,7 @@ MD %TEMP_FOLDER% 2> NUL
 CD ..
 
 REM ================= Section #2 - Settings - end ==============================
+
 
 REM ================= Section #3 - Resources Clearing - start ==============================
 REM In this section we clear the most importent AWS resources (if exists).
