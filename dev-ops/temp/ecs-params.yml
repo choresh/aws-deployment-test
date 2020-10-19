@@ -1,0 +1,16 @@
+version: 1
+task_definition:
+  task_execution_role: aws-deployment-test 
+  ecs_network_mode: awsvpc
+  task_size:
+    mem_limit: 0.5GB
+    cpu_limit: 256
+run_params:
+  network_configuration:
+    awsvpc_configuration:
+      subnets:
+        - "subnet-027c84fc1318a9f5a"
+        - "subnet-0354c3ccf33fa8129"
+      security_groups:
+        - "sg-06f738bf44a7adaaa"
+      assign_public_ip: ENABLED

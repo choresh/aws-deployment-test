@@ -48,7 +48,7 @@
     ~~~
 * Optional - run automatic tests within the docker machine:
     ~~~
-    docker-compose --file docker-compose.test.yml up --build
+    docker-compose --file docker-compose.test.local.yml up --build
     ~~~
 * See appendix below for some more useful Docker commands.
 
