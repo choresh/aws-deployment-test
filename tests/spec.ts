@@ -9,14 +9,14 @@ const CONNECTION_RETRY_TIMEOUT_MS: number = 10000;
 // be selected if run performed without the 'docker-compose.test.yml' (e.g. while
 // developer runs the service and test locally, out of docker macine).
 let serviceHost: string = process.env.SERVICE_HOST || "localhost";
-console.log("Configured service host:", serviceHost);
 
 describe("REST API Tests", () => {
   
   // Clear the DB - before each run of this tests collection
   before(async () => {
    
-  
+    console.log("Configured service host:", serviceHost);
+
     for (var i = 1; ; i++) {
       try {
         console.log("Connect to app's REST API started, attempt " + i + "/" + CONNECTION_RETRY_COUNT);
