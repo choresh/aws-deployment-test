@@ -20,9 +20,9 @@
 
 ### Create the 'Postgres' database:
 * Open the 'pgAdmin' app (part of the 'Postgres' installation).
-* Go to: Databases -> right click -> Create -> DataBase, and create new data base with:
+* Go to: Databases -> right click -> Create -> DataBase, and create/validate existance of database with:
     ~~~
-    * name: <App Name>.
+    * name: postgres.
     * port: 5432.
     * username: postgres.
     * password: postgres.

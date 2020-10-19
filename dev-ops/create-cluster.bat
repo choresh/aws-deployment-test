@@ -25,16 +25,18 @@ SET REGION=us-east-2
 SET PORT=8080
 
 REM Define constants (names for folders and files).
-SET DATA_FOLDER=data
-SET TEMP_FOLDER=temp
-SET AWS_FOLDER=aws
-SET AWS_DATA_FOLDER=%AWS_FOLDER%/%DATA_FOLDER%
-SET AWS_TEMP_FOLDER=%AWS_FOLDER%/%TEMP_FOLDER%
-SET TEMP_FILE_NAME=%AWS_TEMP_FOLDER%/temp.txt
+SET CURR_FOLDER=%~dp0
+SET WORKING_FOLDER=%CURR_FOLDER%..
+SET TEMP_FOLDER_NAME=temp
+SET TEMP_FOLDER=dev-ops/%TEMP_FOLDER_NAME%
+SET AWS_FOLDER=dev-ops/aws
+SET DOCKER_COMPOSE_FILE_NAME=dev-ops/docker-compose.cloud.yml
+SET TEMP_FILE_NAME=%TEMP_FOLDER%/temp.txt
 SET GITHUB_WORKFLOWS_FOLDER=.github/workflows
-SET ROLE_POLICY_FILE=%AWS_DATA_FOLDER%/task-execution-assume-role.json
-SET ECS_PARAMS_TEMPLATE_FILE_NAME=%AWS_DATA_FOLDER%/ecs-params-template.yml
-SET ECS_PARAMS_FILE_NAME=%AWS_TEMP_FOLDER%/ecs-params.yml
+SET ROLE_POLICY_FILE=%AWS_FOLDER%/task-execution-assume-role.json
+SET ECS_PARAMS_TEMPLATE_FILE_NAME=%AWS_FOLDER%/ecs-params-template.yml
+SET ECS_PARAMS_FILE_NAME=%TEMP_FOLDER%/ecs-params.yml
+
 SET GITHUB_PARAMS_TEMPLATE_FILE_NAME=%GITHUB_WORKFLOWS_FOLDER%/deploy-to-aws-template.yml
 SET GITHUB_PARAMS_FILE_NAME=%GITHUB_WORKFLOWS_FOLDER%/deploy-to-aws.yml
 
@@ -61,9 +63,12 @@ REM SET BOLD_COLOR=1
 REM SET UNDERLINE_COLOR=4
 
 REM Create the 'temp' folder (if not exists).
-CD %AWS_FOLDER%
-MD %TEMP_FOLDER% 2> NUL
-CD ..
+
+CD %CURR_FOLDER%
+MD %TEMP_FOLDER_NAME% 2> NUL
+
+REM Move to working folde
+CD %WORKING_FOLDER%
 
 REM ================= Section #2 - Settings - end ==============================
 
@@ -296,41 +301,31 @@ IF NOT %errorlevel% == 0 (
 SET MSG=* Add a security group rule to allow inbound access on port %PORT% - ended
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
 
-REM SET MSG=* Set ECS params - started
-REM CHO [201;%OKGREEN_COLOR%m%MSG%[0m
-REM SETLOCAL EnableDelayedExpansion
-REM FOR /f "Tokens=* Delims=" %%A IN (%ECS_PARAMS_TEMPLATE_FILE_NAME%) DO SET ECS_PARAMS_TEMPLATE=!ECS_PARAMS_TEMPLATE!%%A
-REM SET MSG=*ECS_PARAMS_TEMPLATE: %ECS_PARAMS_TEMPLATE%
-REM ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
-REM %ECS_PARAMS_TEMPLATE% > %ECS_PARAMS_FILE_NAME%
-REM SET MSG=* Set ECS params - ended
-REM ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
-
 SET MSG=* Set ECS params - started
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
-POWERSHELL -Command "(gc %ECS_PARAMS_TEMPLATE_FILE_NAME%) -replace '#ROLE_NAME#', '%ROLE_NAME%' | Out-File -encoding ASCII %ECS_PARAMS_FILE_NAME%"
-POWERSHELL -Command "(gc %ECS_PARAMS_FILE_NAME%) -replace '#SUBNET_1#', '%FOUND_SUBNET_1%'  | Out-File -encoding ASCII %ECS_PARAMS_FILE_NAME%"
-POWERSHELL -Command "(gc %ECS_PARAMS_FILE_NAME%) -replace '#SUBNET_2#', '%FOUND_SUBNET_2%'  | Out-File -encoding ASCII %ECS_PARAMS_FILE_NAME%"
-POWERSHELL -Command "(gc %ECS_PARAMS_FILE_NAME%) -replace '#SG_ID#', '%FOUND_SG_ID%' | Out-File -encoding ASCII %ECS_PARAMS_FILE_NAME%"
+POWERSHELL -Command "(gc '%ECS_PARAMS_TEMPLATE_FILE_NAME%') -replace '#ROLE_NAME#', '%ROLE_NAME%' | Out-File -encoding ASCII '%ECS_PARAMS_FILE_NAME%'"
+POWERSHELL -Command "(gc '%ECS_PARAMS_FILE_NAME%') -replace '#SUBNET_1#', '%FOUND_SUBNET_1%'  | Out-File -encoding ASCII '%ECS_PARAMS_FILE_NAME%'"
+POWERSHELL -Command "(gc '%ECS_PARAMS_FILE_NAME%') -replace '#SUBNET_2#', '%FOUND_SUBNET_2%'  | Out-File -encoding ASCII '%ECS_PARAMS_FILE_NAME%'"
+POWERSHELL -Command "(gc '%ECS_PARAMS_FILE_NAME%') -replace '#SG_ID#', '%FOUND_SG_ID%' | Out-File -encoding ASCII '%ECS_PARAMS_FILE_NAME%'"
 SET MSG=* Set ECS params - ended
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
 
-SET MSG=* Deploy the compose file to the cluster - started (may take few minutes...)
+SET MSG=* Creates ECS service from the compose file, and run it - started (may take few minutes...)
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
 ECHO =====================================================================
-ecs-cli compose --ecs-params %ECS_PARAMS_FILE_NAME% --project-name %PROJECT_NAME% service up --create-log-groups --cluster-config %CLUSTER_CONFIG_NAME% --ecs-profile %PROFILE_NAME%
+ecs-cli compose --ecs-params %ECS_PARAMS_FILE_NAME% --project-name %PROJECT_NAME% --file %DOCKER_COMPOSE_FILE_NAME% service up --create-log-groups --cluster-config %CLUSTER_CONFIG_NAME% --ecs-profile %PROFILE_NAME%
 ECHO =====================================================================
 IF NOT %errorlevel% == 0 (
-    SET ERR_MSG=* Deploy the compose file to the cluster - failed, error code: %errorlevel%
+    SET ERR_MSG=* Creates ECS service from the compose file, and run it - failed, error code: %errorlevel%
     GOTO END
 )
-SET MSG=* Deploy the compose file to the cluster - ended
+SET MSG=* Creates ECS service from the compose file, and run it - ended
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
 
 SET MSG=* Display info about cluster's running containers - started
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
 ECHO =====================================================================
-ecs-cli compose --project-name %PROJECT_NAME% service ps --cluster-config %CLUSTER_CONFIG_NAME% --ecs-profile %PROFILE_NAME%
+ecs-cli compose --project-name %PROJECT_NAME% --file %DOCKER_COMPOSE_FILE_NAME% service ps --cluster-config %CLUSTER_CONFIG_NAME% --ecs-profile %PROFILE_NAME%
 ECHO =====================================================================
 IF NOT %errorlevel% == 0 (
     SET ERR_MSG=* Display info about cluster's running containers - failed, error code: %errorlevel%
@@ -338,6 +333,8 @@ IF NOT %errorlevel% == 0 (
 )
 SET MSG=* Display info about cluster's running containers - ended
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
+
+GOTO NO_SCALE
 
 SET MSG=* Scale the tasks on the cluster - started (may take few minutes...)
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
@@ -362,6 +359,8 @@ IF NOT %errorlevel% == 0 (
 )
 SET MSG=* Display info about cluster's running containers, after scale - ended
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
+
+:NO_SCALE
 
 REM ================= Section #6 - AWS Clustr Creation - end ==============================
 
@@ -419,8 +418,8 @@ ECHO [201;%WARNING_COLOR%m%MSG%[0m
 :END
 
 REM Delete the 'temp' folder.
-CD %AWS_FOLDER%
-RMDIR /S /Q %TEMP_FOLDER%
+CD %CURR_FOLDER%
+RMDIR /S /Q %TEMP_FOLDER_NAME%
 CD ..
 
 IF DEFINED ERR_MSG (

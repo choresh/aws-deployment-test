@@ -19,12 +19,12 @@ export class Db {
   }
 
   private static async connect(): Promise<Connection> {
-
+     
     // Env variable 'PG_HOST' defined in 'docker-compose.yml', the 'localhost' will
     // be selected if run performed without the 'docker-compose.yml' (e.g. while
     // developer runs the service locally, out of docker macine).
     let host: string = process.env.PG_HOST || "localhost";
-    
+     
     // * TODO: currently most of the values are hard-coded - this it temp solution, a
     //   beter one will be to pass them as env variables (especially - the password!).
     // * More about those options - see here: https://typeorm.io/#/connection-options.    
@@ -34,7 +34,7 @@ export class Db {
       port: 5432,
       username: "postgres",
       password: "postgres", // Hard-coded password (TODO: not for pruduction!!!)
-      database: "aws-sample-app",
+      database: "postgres",
       synchronize: true, // Indicates if database schema should be auto created on every application launch (TODO: not for pruduction!!!)
       dropSchema: true, // Drops the schema each time connection is being established (TODO: not for pruduction!!!)
       logging: false,

@@ -1,29 +1,22 @@
 version: "3"
 services:
   aws-deployment-test:
-    image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test 
-    ports:
-      - "8080:8080"
+    # image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test:latest 
+    build: .
     depends_on:
       - postgres
     environment:       
-      PG_HOST: postgres
-    # logging:
-    #   driver: awslogs
-    #   options: 
-    #     awslogs-group: aws-deployment-test
-    #     awslogs-region: us-east-2
-    #     awslogs-stream-prefix: aws-deployment-test
+      PG_HOST: postgres    
   postgres:
+    container_name: postgres
     image: postgres:12.4-alpine
-    ports:
-      - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: aws-sample-app
+      POSTGRES_DB: aws-deployment-test
   sut:
-    image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test 
+     # image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test:latest 
+     build: .
     depends_on:
       - aws-deployment-test
     environment:

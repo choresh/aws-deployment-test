@@ -6,7 +6,13 @@ services:
     depends_on:
       - postgres
     environment:       
-      PG_HOST: postgres    
+      PG_HOST: postgres
+    logging:
+      driver: awslogs
+      options: 
+        awslogs-group: aws-deployment-test
+        awslogs-region: us-east-2
+        awslogs-stream-prefix: aws-deployment-test  
   postgres:
     container_name: postgres
     image: postgres:12.4-alpine
