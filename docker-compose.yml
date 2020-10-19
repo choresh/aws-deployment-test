@@ -2,7 +2,7 @@ version: "3"
 services:
   aws-deployment-test:
     container_name: aws-deployment-test
-    image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test 
+    # image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test 
     build: .
     ports:
       - "8080:8080"

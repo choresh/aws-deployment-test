@@ -47,6 +47,10 @@
     docker-compose up --build
     ~~~
 * See the appendix below for some more useful Docker commands.
+* To run automatic tests: // TODO
+    ~~~
+    docker-compose --file docker-compose.test.yml up --build
+    ~~~
 
 ## Run the application in **cloud**
 

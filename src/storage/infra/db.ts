@@ -24,7 +24,7 @@ export class Db {
     // be selected if run performed without the 'docker-compose.yml' (e.g. while
     // developer runs the service locally, out of docker macine).
     let host: string = process.env.PG_HOST || "localhost";
-     
+   
     // * TODO: currently most of the values are hard-coded - this it temp solution, a
     //   beter one will be to pass them as env variables (especially - the password!).
     // * More about those options - see here: https://typeorm.io/#/connection-options.    
@@ -58,7 +58,6 @@ export class Db {
           resolve(connection);
           return;
         } catch (err) {
-          console.log("MESSAGE:", err.message)
           var isConnectionFailure: boolean = (err.message && ((<string>err.message).startsWith("connect ECONNREFUSED") || (err.message === "the database system is starting up")));
           if ((i === CONNECTION_RETRY_COUNT) || !isConnectionFailure) {
             console.log("Connect to postgress DB failed, error:", err);
