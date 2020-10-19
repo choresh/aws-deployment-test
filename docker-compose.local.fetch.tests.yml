@@ -2,8 +2,6 @@ version: "3"
 services:
   aws-deployment-test:
     image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test:latest
-    depends_on:
-      - postgres
     environment:       
       PG_HOST: postgres
   postgres:
@@ -14,8 +12,6 @@ services:
       POSTGRES_DB: postgres
   sut:
     image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test:latest
-    depends_on:
-      - aws-deployment-test
     environment:
       SERVICE_HOST: aws-deployment-test  
     command: npm run test

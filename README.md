@@ -49,15 +49,15 @@
 * Other options:  
     * Build the service, run it, and run automatic tests (all within your docker machine):
         ~~~
-        docker-compose --file docker-compose.test.local.yml up --build
+        docker-compose --file docker-compose.local.build.tests.yml up --build
         ~~~   
     * Fetch last version of the service from ECR, run it, and run automatic tests (all within your docker machine):
         ~~~
-        docker-compose --file docker-compose.test.cloud.yml up
+        docker-compose --file docker-compose.local.fetch.tests.yml up
         ~~~
     * Fetch last version of the service from ECR, run it (within your docker machine):
         ~~~
-        docker-compose --file docker-compose.cloud.yml up
+        docker-compose --file docker-compose.local.fetch.yml up
         ~~~
    
 * See appendix below for some more useful Docker commands.
@@ -132,7 +132,7 @@
         * Open the GitHub reposetory page, then go to 'Actions' -> 'Workflows' -> 'Deploy to Amazon ECS', and test the workflow manually:
             * Select (click) it, then click bottun 'Run workflow' which located at right side of the page.
             * Validate that entire workflow works fine (including running of automatic tests)  
-* Discovere available services, and thire base URLs:
+* Discovere available services, and their base URLs:
     * Go to root folder of the app (the folder where file 'package.json' located), and execute the following command:
         ~~~
         ecs-cli compose --project-name <cluster-name> service ps --cluster-config <cluster-name> --ecs-profile <cluster-name>
@@ -149,14 +149,14 @@ Note: this step should done while the **application already runs** (in **docker 
 * Open browser, navigate to 'http://<base url>:<port>/<path>', and validate that expected result is recieved.
 * Base url:
     * While application runs in **local machine** or **docker machine**: 'localhost'.
-    * While application runs in **cloud**: see step **'Discovere available services, and thire base URLs'** above.
+    * While application runs in **cloud**: see step **'Discovere available services, and their base URLs'** above.
 * Port: as defined in the 'EXPOSE' at dockerfile.
 * Path: one of the 'GET' pathes which defined in the application's routers.
 
 ### Via automatic tests
 * Notes: 
     * Current testing code clears the DB at each run of the tests.
-    * If application runs in **cloud** - need to set the 'serviceHost' variable (at file 'tests\spec.ts'), accurding base url of the required service, see step **'Discovere available services, and thire base URLs'** above.
+    * If application runs in **cloud** - need to set the 'serviceHost' variable (at file 'tests\spec.ts'), accurding base url of the required service, see step **'Discovere available services, and their base URLs'** above.
 * Run the automatic tests:
     * Go to root folder of the app (the folder where file 'package.json' located), and execute the following commands sequence (install/build commands - just if not executed yet, or if 'serviceHost' was changed, they require because they install and build also the testing code):
         ~~~

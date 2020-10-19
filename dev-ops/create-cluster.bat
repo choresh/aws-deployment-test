@@ -30,8 +30,8 @@ SET WORKING_FOLDER=%CURR_FOLDER%..
 SET TEMP_FOLDER_NAME=temp
 SET TEMP_FOLDER=dev-ops/%TEMP_FOLDER_NAME%
 SET AWS_FOLDER=dev-ops/aws
-SET DOCKER_COMPOSE_FILE_NAME=dev-ops/docker-compose.cloud.yml
-SET DOCKER_COMPOSE_TEST_FILE_NAME=dev-ops/docker-compose.cloud.test.yml
+SET DOCKER_COMPOSE_FILE_NAME=docker-compose.cloud.fetch.yml
+SET DOCKER_COMPOSE_TEST_FILE_NAME=docker-compose.local.fetch.tests.yml
 SET TEMP_FILE_NAME=%TEMP_FOLDER%/temp.txt
 SET GITHUB_WORKFLOWS_FOLDER=.github/workflows
 SET ROLE_POLICY_FILE=%AWS_FOLDER%/task-execution-assume-role.json
@@ -418,12 +418,10 @@ ecs-cli compose --ecs-params %ECS_PARAMS_FILE_NAME% --project-name %PROJECT_NAME
 ECHO =====================================================================
 IF NOT %errorlevel% == 0 (
     SET ERR_MSG=* Run automatic tests - failed, error code: %errorlevel%
-    PAUSE
     GOTO END
 )
 SET MSG=* Run automatic tests - ended
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
-PAUSE
 
 REM ================= Stage #8 - Running Automatic Tests - end ==============================
 

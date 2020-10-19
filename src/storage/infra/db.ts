@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { createConnection, Connection, ConnectionOptions } from "typeorm";
 
 const CONNECTION_RETRY_COUNT: number = 10;
-const CONNECTION_RETRY_TIMEOUT_MS: number = 2000;
+const CONNECTION_RETRY_TIMEOUT_MS: number = 4000;
 
 export class Db {
   private static _connection: Connection;

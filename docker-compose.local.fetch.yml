@@ -1,16 +1,12 @@
 version: "3"
 services:
   aws-deployment-test:
-    container_name: aws-deployment-test
-    build: .
+    image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test 
     ports:
       - "8080:8080"
-    depends_on:
-      - postgres
     environment:       
-      PG_HOST: postgres 
+      PG_HOST: postgres
   postgres:
-    container_name: postgres
     image: postgres:12.4-alpine
     ports:
       - "5432:5432"

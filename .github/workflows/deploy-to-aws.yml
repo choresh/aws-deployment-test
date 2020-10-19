@@ -64,11 +64,11 @@ jobs:
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
         echo "Download task definition file"
-        aws ecs describe-task-definition --task-definition aws-deployment-test:51 --query taskDefinition > task-definition.json
+        aws ecs describe-task-definition --task-definition aws-deployment-test:50 --query taskDefinition > task-definition.json
     
     - name: Run tests
       id: docker-compose-test
-      run: docker-compose --file docker-compose.test.cloud.yml up --build --exit-code-from sut
+      run: docker-compose --file docker-compose.cloud.fetch.tests.yml up --build --exit-code-from sut
 
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def
