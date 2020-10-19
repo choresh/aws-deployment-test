@@ -23,14 +23,15 @@ export class Db {
     // Env variable 'PG_HOST' defined in 'docker-compose.yml', the 'localhost' will
     // be selected if run performed without the 'docker-compose.yml' (e.g. while
     // developer runs the service locally, out of docker macine).
-    let host: string = process.env.PG_HOST || "localhost";
-   
+    let postgresHost: string = process.env.PG_HOST || "localhost";
+    console.log("Configured postgres host:", postgresHost);
+
     // * TODO: currently most of the values are hard-coded - this it temp solution, a
     //   beter one will be to pass them as env variables (especially - the password!).
     // * More about those options - see here: https://typeorm.io/#/connection-options.    
     const options: ConnectionOptions = {
       type: "postgres",
-      host: host,
+      host: postgresHost,
       port: 5432,
       username: "postgres",
       password: "postgres", // Hard-coded password (TODO: not for pruduction!!!)
