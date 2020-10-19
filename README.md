@@ -157,7 +157,7 @@ Note: this step should done while the **application already runs** (in **docker 
 * It is possible to invoke the automatic tests via the docker compose command, in the folowing cases:
     * Application runs in **docker machine**: see step **'Optional - run automatic tests within the docker machine'** above.
     * Application runs in **cloud**:
-        * Via the GitHub workflow: see step **'Testing the GitHub workflow'** above).
+        * Via the GitHub workflow: see step **'Testing the GitHub workflow'** above.
         * TODO
 
 
