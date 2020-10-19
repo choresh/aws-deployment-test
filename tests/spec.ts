@@ -5,18 +5,17 @@ var expect = require("chai").expect;
 const CONNECTION_RETRY_COUNT: number = 10;
 const CONNECTION_RETRY_TIMEOUT_MS: number = 10000;
 
+// Env variable 'SERVICE_HOST' defined in 'docker-compose.test.yml', the 'localhost' will
+// be selected if run performed without the 'docker-compose.test.yml' (e.g. while
+// developer runs the service and test locally, out of docker macine).
+let serviceHost: string = process.env.SERVICE_HOST || "localhost";
+
 describe("REST API Tests", () => {
   
-  let serviceHost: string;
-
   // Clear the DB - before each run of this tests collection
   before(async () => {
    
-    // Env variable 'SERVICE_HOST' defined in 'docker-compose.test.yml', the 'localhost' will
-    // be selected if run performed without the 'docker-compose.test.yml' (e.g. while
-    // developer runs the service and test locally, out of docker macine).
-    serviceHost = process.env.SERVICE_HOST || "localhost"
-
+  
     for (var i = 1; ; i++) {
       try {
         console.log("Connect to app's REST API started, attempt " + i + "/" + CONNECTION_RETRY_COUNT);
