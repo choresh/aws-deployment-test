@@ -26,15 +26,11 @@
 version: "3"
 services:
   aws-deployment-test:
-    image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test:latest 
+    image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test:latest
+    depends_on:
+      - postgres
     environment:       
       PG_HOST: postgres
-    logging:
-      driver: awslogs
-      options: 
-        awslogs-group: aws-deployment-test
-        awslogs-region: us-east-2
-        awslogs-stream-prefix: aws-deployment-test  
   postgres:
     image: postgres:12.4-alpine
     environment:
@@ -42,13 +38,9 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
   sut:
-    image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test:latest 
+    image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test:latest
+    depends_on:
+      - aws-deployment-test
     environment:
-      SERVICE_HOST: aws-deployment-test
-    logging:
-      driver: awslogs
-      options: 
-        awslogs-group: aws-deployment-test-tests
-        awslogs-region: us-east-2
-        awslogs-stream-prefix: aws-deployment-test-tests     
+      SERVICE_HOST: aws-deployment-test  
     command: npm run test
