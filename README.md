@@ -36,7 +36,7 @@
     npm run start
     ~~~
 
-## Run the application in **docker machine**
+## Run the application in your **docker machine**
 
 ### Prerequisite installations:
 * Install Docker engine (e.g. 'Docker Desktop for Windows' - https://hub.docker.com/editions/community/docker-ce-desktop-windows).
@@ -46,10 +46,20 @@
     ~~~
     docker-compose up --build
     ~~~
-* Optional - run automatic tests within the docker machine:
-    ~~~
-    docker-compose --file docker-compose.test.local.yml up --build
-    ~~~
+* Other options:  
+    * Build the service, run it, and run automatic tests (all within your docker machine):
+        ~~~
+        docker-compose --file docker-compose.test.local.yml up --build
+        ~~~   
+    * Fetch last version of the service from ECR, run it, and run automatic tests (all within your docker machine):
+        ~~~
+        docker-compose --file docker-compose.test.cloud.yml up
+        ~~~
+    * Fetch last version of the service from ECR, run it (within your docker machine):
+        ~~~
+        docker-compose --file docker-compose.cloud.yml up
+        ~~~
+   
 * See appendix below for some more useful Docker commands.
 
 ## Run the application in **cloud**
@@ -155,7 +165,7 @@ Note: this step should done while the **application already runs** (in **docker 
         npm run test
         ~~~
 * It is possible to invoke the automatic tests via the docker compose command, in the folowing cases:
-    * Application runs in **docker machine**: see step **'Optional - run automatic tests within the docker machine'** above.
+    * Application runs in **docker machine**: see 1st and 2nd options, in **'Other options'** (under 'Run the application in your docker machine')  above.
     * Application runs in **cloud**:
         * Via the GitHub workflow: see step **'Testing the GitHub workflow'** above.
         * TODO
