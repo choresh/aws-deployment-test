@@ -29,7 +29,7 @@ services:
     logging:
       driver: awslogs
       options: 
-        awslogs-group: aws-deployment-test-tests
+        awslogs-group: aws-deployment-test
         awslogs-region: us-east-2
         awslogs-stream-prefix: aws-deployment-test-tests    
     command: npm run test
