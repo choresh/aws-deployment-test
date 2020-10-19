@@ -1,7 +1,7 @@
 @ECHO OFF
 
-REM ================= Section #1 - Secret Keys - start ==============================
-REM * In this section we store credintials required for the AWS/ECS CLI's.
+REM ================= Stage #1 - Secret Keys - start ==============================
+REM * In this stage we store credintials required for the AWS/ECS CLI's.
 REM * More about those Access Keys - see the following chapters in 'README.md' file of this package:
 REM     * 'At AWS - create IAM user, and get correspond access keys'.
 REM     * 'Configure our batch file'.
@@ -13,11 +13,11 @@ REM     * Such an exposure may happened by mistake, e.g. if you push this file t
 SET AWS_ACCESS_KEY_ID=
 SET AWS_SECRET_ACCESS_KEY=
 REM
-REM ================= Section #1 - Secret Keys - end ==============================
+REM ================= Stage #1 - Secret Keys - end ==============================
 
 
-REM ================= Section #2 - Settings - start ==============================
-REM In this section we define all required settings varaibles.
+REM ================= Stage #2 - Settings - start ==============================
+REM In this stage we define all required settings varaibles.
 
 REM Define per-app values.
 SET APP_NAME=aws-deployment-test
@@ -31,6 +31,7 @@ SET TEMP_FOLDER_NAME=temp
 SET TEMP_FOLDER=dev-ops/%TEMP_FOLDER_NAME%
 SET AWS_FOLDER=dev-ops/aws
 SET DOCKER_COMPOSE_FILE_NAME=dev-ops/docker-compose.cloud.yml
+SET DOCKER_COMPOSE_TEST_FILE_NAME=dev-ops/docker-compose.cloud.test.yml
 SET TEMP_FILE_NAME=%TEMP_FOLDER%/temp.txt
 SET GITHUB_WORKFLOWS_FOLDER=.github/workflows
 SET ROLE_POLICY_FILE=%AWS_FOLDER%/task-execution-assume-role.json
@@ -70,11 +71,11 @@ MD %TEMP_FOLDER_NAME% 2> NUL
 REM Move to working folde
 CD %WORKING_FOLDER%
 
-REM ================= Section #2 - Settings - end ==============================
+REM ================= Stage #2 - Settings - end ==============================
 
 
-REM ================= Section #3 - Resources Clearing - start ==============================
-REM In this section we clear the most importent AWS resources (if exists).
+REM ================= Stage #3 - Resources Clearing - start ==============================
+REM In this stage we clear the most importent AWS resources (if exists).
 
 SET MSG=* Clear all resources (if exists) - started (may take few minutes...)
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
@@ -84,11 +85,11 @@ aws ecr delete-repository --repository-name %REPOSITORY_NAME% --region %REGION% 
 SET MSG=* Clear all resources (if exists) - ended
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
 
-REM ================= Section #3 - Resources Clearing - end ==============================
+REM ================= Stage #3 - Resources Clearing - end ==============================
 
 
-REM ================= Section #4 - AWS Repository Creation - start ==============================
-REM In this section we create AWS repository (if not exists yet).
+REM ================= Stage #4 - AWS Repository Creation - start ==============================
+REM In this stage we create AWS repository (if not exists yet).
 
 SET MSG=* Get Repository info - started
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
@@ -120,11 +121,11 @@ ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
 SET MSG=* Fetch Repository info - ended
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
 
-REM ================= Section #4 - AWS Repository Creation - end ==============================
+REM ================= Stage #4 - AWS Repository Creation - end ==============================
 
 
-REM ================= Section #5 - Docker Image Creation - start ==============================
-REM In this section we build docker image, and push it to our reposetory.
+REM ================= Stage #5 - Docker Image Creation - start ==============================
+REM In this stage we build docker image, and push it to our reposetory.
 
 SET MSG=* Authenticate Docker to an Amazon ECR reposetory - started
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
@@ -152,11 +153,11 @@ ECHO =====================================================================
 SET MSG=* Push - ended
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
 
-REM ================= Section #5 - Docker Image Creation - end ==============================
+REM ================= Stage #5 - Docker Image Creation - end ==============================
 
 
-REM ================= Section #6 - AWS Clustr Creation - start ==============================
-REM * In this section we create an AWS cluster with a fargate task. 
+REM ================= Stage #6 - AWS Clustr Creation - start ==============================
+REM * In this stage we create an AWS cluster with a fargate task. 
 REM * More info - see https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-ec2.html,
 REM   and its sub chapters:
 REM     * 'Installing the Amazon ECS CLI'.
@@ -362,11 +363,11 @@ ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
 
 :NO_SCALE
 
-REM ================= Section #6 - AWS Clustr Creation - end ==============================
+REM ================= Stage #6 - AWS Clustr Creation - end ==============================
 
 
-REM ================= Section #7 - GitHub Workflow Creation - start ==============================
-REM * In this section we create a GitHub workflow, to soppurt CI/CD.
+REM ================= Stage #7 - GitHub Workflow Creation - start ==============================
+REM * In this stage we create a GitHub workflow, to soppurt CI/CD.
 REM * With this workflow, an automatic build and push of docker image into the AWS reposetory will be executed on each GitHub push.
 REM * More info - see https://medium.com/javascript-in-plain-english/deploy-your-node-app-to-aws-container-service-via-github-actions-build-a-pipeline-c114adeb8903,
 REM   and its sub chapters:
@@ -405,10 +406,29 @@ POWERSHELL -Command "(gc %GITHUB_PARAMS_FILE_NAME%) -replace '#CLUSTER_NAME#', '
 SET MSG=* Set GitHub params - ended
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
 
-REM ================= Section #7 - GitHub Workflow Creation - end ==============================
+REM ================= Stage #7 - GitHub Workflow Creation - end ==============================
 
 
-REM ================= Section #8 - Termination - start ==============================
+REM ================= Stage #8 - Running Automatic Tests - start ==============================
+
+SET MSG=* Run automatic tests - started (may take few minutes...)
+ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
+ECHO =====================================================================
+ecs-cli compose --ecs-params %ECS_PARAMS_FILE_NAME% --project-name %PROJECT_NAME% --file %DOCKER_COMPOSE_TEST_FILE_NAME% service up --create-log-groups --cluster-config %CLUSTER_CONFIG_NAME% --ecs-profile %PROFILE_NAME%
+ECHO =====================================================================
+IF NOT %errorlevel% == 0 (
+    SET ERR_MSG=* Run automatic tests - failed, error code: %errorlevel%
+    PAUSE
+    GOTO END
+)
+SET MSG=* Run automatic tests - ended
+ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
+PAUSE
+
+REM ================= Stage #8 - Running Automatic Tests - end ==============================
+
+
+REM ================= Stage #9 - Termination - start ==============================
 
 SET MSG=* To newly view available services, and thire URLs - run the folowing command (within the project root folder):
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
@@ -432,4 +452,4 @@ ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
 PAUSE
 @ECHO ON
 
-REM ================= Section #8 - Termination - end ==============================
+REM ================= Stage #9 - Termination - end ==============================
