@@ -59,7 +59,11 @@ export class Db {
           resolve(connection);
           return;
         } catch (err) {
-          var isConnectionFailure: boolean = (err.message && ((<string>err.message).startsWith("connect ECONNREFUSED") || (err.message === "the database system is starting up")));
+          var isConnectionFailure: boolean = (err.message && (
+              (<string>err.message).startsWith("connect ECONNREFUSED") ||
+              (<string>err.message).startsWith("getaddrinfo ENOTFOUND") ||
+              (err.message === "the database system is starting up")
+            ));
           if ((i === CONNECTION_RETRY_COUNT) || !isConnectionFailure) {
             console.log("Connect to postgress DB failed, error:", err);
             reject("Connect to postgress DB failed, reason: " + err.message);
