@@ -4,8 +4,6 @@ services:
     image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test 
     ports:
       - "8080:8080"
-    depends_on:
-      - postgres
     environment:       
       PG_HOST: postgres
     logging:
