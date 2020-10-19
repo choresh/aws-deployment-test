@@ -25,7 +25,7 @@ services:
     depends_on:
       - aws-deployment-test
     environment:
-    SERVICE_HOST: aws-deployment-test
+      SERVICE_HOST: aws-deployment-test
     logging:
       driver: awslogs
       options: 
