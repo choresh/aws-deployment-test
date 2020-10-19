@@ -19,11 +19,5 @@ services:
     depends_on:
       - aws-deployment-test
     environment:
-      SERVICE_HOST: aws-deployment-test
-    logging:
-      driver: awslogs
-      options: 
-        awslogs-group: aws-deployment-test
-        awslogs-region: us-east-2
-        awslogs-stream-prefix: aws-deployment-test-tests    
+      SERVICE_HOST: aws-deployment-test    
     command: npm run test
