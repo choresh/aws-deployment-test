@@ -1,9 +1,6 @@
 version: "3"
 services:
   aws-deployment-test:
-    container_name: aws-deployment-test
-    depends_on:
-      - postgres
     image: 403698577297.dkr.ecr.us-east-2.amazonaws.com/aws-deployment-test 
     ports:
       - "8080:8080"
@@ -16,8 +13,6 @@ services:
         awslogs-region: us-east-2
         awslogs-stream-prefix: aws-deployment-test
   postgres:
-    container_name: postgres
-    restart: always
     image: postgres:12.4-alpine
     ports:
       - "5432:5432"
