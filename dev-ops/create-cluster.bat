@@ -31,7 +31,6 @@ SET TEMP_FOLDER_NAME=temp
 SET TEMP_FOLDER=dev-ops/%TEMP_FOLDER_NAME%
 SET AWS_FOLDER=dev-ops/aws
 SET DOCKER_COMPOSE_FILE_NAME=docker-compose.cloud.fetch.yml
-SET DOCKER_COMPOSE_TEST_FILE_NAME=docker-compose.local.fetch.tests.yml
 SET TEMP_FILE_NAME=%TEMP_FOLDER%/temp.txt
 SET GITHUB_WORKFLOWS_FOLDER=.github/workflows
 SET ROLE_POLICY_FILE=%AWS_FOLDER%/task-execution-assume-role.json
@@ -51,6 +50,7 @@ SET SERVICE_NAME=%APP_NAME%
 SET CONTAINER_NAME=%APP_NAME%
 SET PROJECT_NAME=%APP_NAME%
 SET CLUSTER_CONFIG_NAME=%APP_NAME%
+SET LOG_GROUP_NAME=%APP_NAME%
 
 REM Define print colors.
 REM SET HEADER_COLOR=95
@@ -82,6 +82,7 @@ ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
 ecs-cli compose --project-name %PROJECT_NAME% service down --cluster-config %CLUSTER_CONFIG_NAME% --ecs-profile %PROFILE_NAME% > NUL 2>&1
 ecs-cli down --cluster-config %CLUSTER_CONFIG_NAME% --ecs-profile %PROFILE_NAME% --force > NUL 2>&1
 aws ecr delete-repository --repository-name %REPOSITORY_NAME% --region %REGION% --force > NUL 2>&1
+aws logs delete-log-group --log-group-name %LOG_GROUP_NAME% --region %REGION%
 SET MSG=* Clear all resources (if exists) - ended
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
 
@@ -409,24 +410,7 @@ ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
 REM ================= Stage #7 - GitHub Workflow Creation - end ==============================
 
 
-REM ================= Stage #8 - Running Automatic Tests - start ==============================
-
-SET MSG=* Run automatic tests - started (may take few minutes...)
-ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
-ECHO =====================================================================
-ecs-cli compose --ecs-params %ECS_PARAMS_FILE_NAME% --project-name %PROJECT_NAME% --file %DOCKER_COMPOSE_TEST_FILE_NAME% service up --create-log-groups --cluster-config %CLUSTER_CONFIG_NAME% --ecs-profile %PROFILE_NAME%
-ECHO =====================================================================
-IF NOT %errorlevel% == 0 (
-    SET ERR_MSG=* Run automatic tests - failed, error code: %errorlevel%
-    GOTO END
-)
-SET MSG=* Run automatic tests - ended
-ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
-
-REM ================= Stage #8 - Running Automatic Tests - end ==============================
-
-
-REM ================= Stage #9 - Termination - start ==============================
+REM ================= Stage #8 - Termination - start ==============================
 
 SET MSG=* To newly view available services, and thire URLs - run the folowing command (within the project root folder):
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
@@ -450,4 +434,4 @@ ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
 PAUSE
 @ECHO ON
 
-REM ================= Stage #9 - Termination - end ==============================
+REM ================= Stage #8 - Termination - end ==============================

@@ -81,6 +81,7 @@
                                 "cloudformation:*",
                                 "iam:CreateRole",
                                 "iam:AttachRolePolicy",
+                                "logs:DeleteLogGroup",
                                 "ec2:DescribeVpcs",
                                 "ec2:DescribeSubnets",
                                 "ec2:DescribeSecurityGroups",
