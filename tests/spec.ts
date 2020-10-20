@@ -20,7 +20,7 @@ describe("REST API Tests", () => {
     for (var i = 1; ; i++) {
       try {
         console.log("Connect to app's REST API started, attempt " + i + "/" + CONNECTION_RETRY_COUNT);
-        const getRes: Response = await superagent.get("http://" + serviceHost + ":8080");
+        const getRes: Response = await superagent.getAll("http://" + serviceHost + ":8080");
         console.log("Connect to app's REST API ended");
         break;
       } catch (err) {
@@ -38,7 +38,7 @@ describe("REST API Tests", () => {
   });
 
   it("Retrieve all entity1s", async () => {
-    const res: Response = await superagent.get("http://" + serviceHost + ":8080");
+    const res: Response = await superagent.getAll("http://" + serviceHost + ":8080");
     let result: Entity1[] = <Entity1[]><any>res.body;  
     console.log("Retrieve all entity1s result:", result);
   });
