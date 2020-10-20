@@ -24,7 +24,7 @@ export class Entity1Controller {
 
   public async getAll(): Promise<Entity1[]> {
     // return await this._repository.find();
-    return Promise.resolve([{"id": 1, payload: "p1"}]);            
+    return Promise.resolve([{"id": 1, payload: "p2"}]);            
   }
 
   public async get(id: number): Promise<Entity1> {
