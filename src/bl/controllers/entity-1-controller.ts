@@ -6,7 +6,7 @@ export class Entity1Controller {
   private _repository: Repository<Entity1>;
  
   public constructor() {
-    this._repository = Db.getConnection().getRepository(Entity1);
+    //this._repository = Db.getConnection().getRepository(Entity1);
   }
 
   public async create(entity1: Entity1): Promise<Entity1> {
@@ -23,7 +23,8 @@ export class Entity1Controller {
   }
 
   public async getAll(): Promise<Entity1[]> {
-    return await this._repository.find();             
+    // return await this._repository.find();
+    return Promise.resolve([{"id": 1, payload: "p1"}]);            
   }
 
   public async get(id: number): Promise<Entity1> {

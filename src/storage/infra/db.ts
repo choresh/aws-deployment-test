@@ -8,7 +8,8 @@ export class Db {
   private static _connection: Connection;
 
   public static async run(): Promise<void> {
-    this._connection = await this.connect();   
+    // this._connection = await this.connect();
+    return Promise.resolve();   
   }
 
   public static getConnection(): Connection {
