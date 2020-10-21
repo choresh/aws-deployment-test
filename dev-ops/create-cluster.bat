@@ -336,8 +336,6 @@ IF NOT %errorlevel% == 0 (
 SET MSG=* Display info about cluster's running containers - ended
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
 
-GOTO NO_SCALE
-
 SET MSG=* Scale the tasks on the cluster - started (may take few minutes...)
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
 ECHO =====================================================================
@@ -361,8 +359,6 @@ IF NOT %errorlevel% == 0 (
 )
 SET MSG=* Display info about cluster's running containers, after scale - ended
 ECHO [201;%OKGREEN_COLOR%m%MSG%[0m
-
-:NO_SCALE
 
 REM ================= Stage #6 - AWS Clustr Creation - end ==============================
 
