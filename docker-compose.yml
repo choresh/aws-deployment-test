@@ -1,7 +1,6 @@
 version: "3"
 services:
   aws-deployment-test:
-    container_name: aws-deployment-test
     build: .
     ports:
       - "8080:8080"
@@ -10,7 +9,6 @@ services:
     environment:       
       PG_HOST: postgres 
   postgres:
-    container_name: postgres
     image: postgres:12.4-alpine
     ports:
       - "5432:5432"
